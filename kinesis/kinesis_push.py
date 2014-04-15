@@ -57,20 +57,26 @@ class KinesisPush(BasicCommand):
     UPDATE = False
     QUEUE_SIZE = 10000
 
-    def _run_main(self, args, parsed_globals):
+
+    def _endpoint_args(self, global_args):
         endpoint_args = {
             'region_name': None,
             'endpoint_url': None
         }
-        if 'region' in parsed_globals:
-            endpoint_args['region_name'] = parsed_globals.region
-        if 'endpoint_url' in parsed_globals:
-            endpoint_args['endpoint_url'] = parsed_globals.endpoint_url
-        self.kinesis = Service('kinesis', endpoint_args=endpoint_args,
-                            session=self._session)
+        if 'region' in global_args:
+            endpoint_args['region_name'] = global_args.region
+        if 'endpoint_url' in global_args:
+            endpoint_args['endpoint_url'] = global_args.endpoint_url
+        return endpoint_args   
+
+
+    def _run_main(self, args, parsed_globals):
+        endpoint_args = self._endpoint_args(parsed_globals)
+        self.kinesis = Service('kinesis', 
+                              endpoint_args=endpoint_args,
+                              session=self._session)
         self._call_push_stdin(args, parsed_globals)
         return 0
-
 
     def _call_push_stdin(self, options, parsed_globals):
         threads = []
