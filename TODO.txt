@@ -1,0 +1,19 @@
+PUSH
+Dry out methods: same pattern for threads that get spawned
+why _call? 
+endpoint parsing in separate method
+_wait_on_exit in module
+truncate in separate module
+add batching support
+
+
+PULL
+is a queue of 10 enough?
+add shard_iterator_type to arguments
+
+
+separator support?
+add help text to all arguments
+rename kinesis_pull to stream-put
+rename kinesis_push to stream-get
+remove pull.py and push.py
