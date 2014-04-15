@@ -47,8 +47,6 @@ class KinesisPull(BasicCommand):
     stdout.write("\nHere we are\n")
 
 class KinesisPull(BasicCommand):
-    """
-    """
     NAME = 'pull'
     DESCRIPTION = ('This command pulls records from a Kinesis stream. ')
     SYNOPSIS = ''
@@ -133,7 +131,6 @@ class EventsPuller(BaseThread):
         self.kinesis_service = kinesis_service
         self.next_shard_iterator = shard_iterator
         self.pull_delay = pull_delay
-        self.next_token = None
 
     @ExponentialBackoff(stderr=True, logger=logger, exception=(ServerError))
     def _run(self):
