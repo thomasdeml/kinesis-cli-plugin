@@ -9,8 +9,6 @@ import shelve
 from sys import stdin, stderr, stdout, exc_info
 from threading import Event, Lock, Thread
 import time
-import re
-import socket
 import six
 from six.moves import queue as Queue
 from botocore.vendored import requests
@@ -68,14 +66,6 @@ class KinesisPush(BasicCommand):
             endpoint_args['region_name'] = parsed_globals.region
         if 'endpoint_url' in parsed_globals:
             endpoint_args['endpoint_url'] = parsed_globals.endpoint_url
-        if args.stream_name == None:
-            raise ValueError('You must pass a stream name (--stream-name [stream name])')
-            return
-        if args.partition_key == None:
-            raise ValueError('You must pass a partition key (--partition-key [partition key])')
-            return 
-        #stdout.write('args: %s\n'% (str(args)))
-        # Initialize services
         self.kinesis = Service('kinesis', endpoint_args=endpoint_args,
                             session=self._session)
         self._call_push_stdin(args, parsed_globals)
@@ -180,14 +170,10 @@ class EventPublisher(BaseThread):
         
         try:
           response = self.kinesis_service.PutRecord(**params)
-          stdout.write('Putting ' + event['message'] + '\n')
+          stdout.write('.')
           stdout.flush()
           return response['SequenceNumber']
         except:
           type, value, traceback = exc_info()
-          log_to_stderr('Caught an exception: %s\n' % value)
-
-          log_to_stderr('Kinesis stream: %s -- Put Record, '
-                      'Partition Key: %s\n' %
-                      (self.stream_name,
-                       self.partition_key))
+          log_to_stderr('Caught exception while putting record to stream %s\n%s' 
+                             % (self.stream_name, value))
