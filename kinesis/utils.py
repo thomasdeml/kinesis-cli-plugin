@@ -54,3 +54,15 @@ def log_to_stdout(line):
 def log_to_stderr(line):
     stderr.write(get_current_time_str() + ' -- ' + line)
     stderr.flush()
+
+
+def endpoint_config(global_args):
+    endpoint_args = {
+       'region_name': None,
+       'endpoint_url': None
+    }
+    if 'region' in global_args:
+        endpoint_args['region_name'] = global_args.region
+    if 'endpoint_url' in global_args:
+        endpoint_args['endpoint_url'] = global_args.endpoint_url
+    return endpoint_args   

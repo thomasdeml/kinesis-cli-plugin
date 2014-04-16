@@ -13,7 +13,7 @@ import six
 from six.moves import queue as Queue
 from botocore.vendored import requests
 from awscli.customizations.kinesis.retry import ExponentialBackoff
-from awscli.customizations.kinesis.utils import log_to_stdout,log_to_stderr
+from awscli.customizations.kinesis.utils import log_to_stdout,log_to_stderr, endpoint_config
 from awscli.errorhandler import ServerError
 from awscli.customizations.commands import BasicCommand
 from awscli.customizations.service import Service
@@ -58,23 +58,12 @@ class KinesisPush(BasicCommand):
     QUEUE_SIZE = 10000
 
 
-    def _endpoint_args(self, global_args):
-        endpoint_args = {
-            'region_name': None,
-            'endpoint_url': None
-        }
-        if 'region' in global_args:
-            endpoint_args['region_name'] = global_args.region
-        if 'endpoint_url' in global_args:
-            endpoint_args['endpoint_url'] = global_args.endpoint_url
-        return endpoint_args   
-
 
     def _run_main(self, args, parsed_globals):
-        endpoint_args = self._endpoint_args(parsed_globals)
-        self.kinesis = Service('kinesis', 
-                              endpoint_args=endpoint_args,
-                              session=self._session)
+        self.kinesis = Service(
+            'kinesis', 
+            endpoint_args=endpoint_config(parsed_globals),
+            session=self._session)
         self._call_push_stdin(args, parsed_globals)
         return 0
 
@@ -85,7 +74,13 @@ class KinesisPush(BasicCommand):
         reader = StandardInputEventsReader(stop_flag, queue)
         reader.start()
         threads.append(reader)
-        publisher = EventPublisher(stop_flag, queue, self.kinesis, options.stream_name, options.partition_key, int(options.push_delay))
+        publisher = EventPublisher(
+            stop_flag, 
+            queue, 
+            self.kinesis, 
+            options.stream_name, 
+            options.partition_key, 
+            int(options.push_delay))
         publisher.start()
         threads.append(publisher)
         self._wait_on_exit(stop_flag)

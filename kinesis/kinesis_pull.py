@@ -16,6 +16,7 @@ from awscli.customizations.kinesis.help import LogsDocHandler, LogsHelp
 from awscli.customizations.kinesis import utils
 from awscli.customizations.kinesis.retry import ExponentialBackoff
 from awscli.customizations.kinesis.threads import BaseThread, ExitChecker
+from awscli.customizations.kinesis.utils import endpoint_config
 
 logger = logging.getLogger(__name__)
 
@@ -26,34 +27,16 @@ def inject_command(command_table, session, **kwargs):
   command_table['pull'] = KinesisPull(session)
   
 class KinesisPull(BasicCommand):
-
-  def __init__(self, session, prompter=None, config_writer=None):
-    self._session = session
-
-  def _run_main(self, parsed_args, parsed_globals):
-    endpoint_args = {
-      'region_name': None,
-      'endpoint_url': None
-    }
-    if 'region' in parsed_globals:
-      endpoint_args['region_name'] = parsed_globals.region
-    if 'endpoint_url' in parsed_globals:
-      endpoint_args['endpoint_url'] = parsed_globals.endpoint_url
-
-    # Called when invoked with no args "aws logs configure"
-    self.kinesis = Service('kinesis', endpoint_args=endpoint_args,
-       session=self._session)
-    
-    stdout.write("\nHere we are\n")
-
-class KinesisPull(BasicCommand):
     NAME = 'pull'
     DESCRIPTION = ('This command pulls records from a Kinesis stream. ')
     SYNOPSIS = ''
 
     ARG_TABLE = [
-        {'name': 'stream-name', 'required': True},
-        {'name': 'shard-id', 'required': True},
+        {'name': 'stream-name', 'required': True,
+         'help_text': 'Specifies the Kinesis stream name'},
+        {'name': 'shard-id', 'required': True, 
+         'help_text': 'Specifies the shard id that should be pulled.'
+                      'Can be retrieved via describe-stream'},
         {'name': 'pull-delay', 'cli_type_name': 'integer', 'default': '5',
          'help_text': 'Specifies the delay in seconds before pulling the '
                       'next batch of log events. Defaults to 5 seconds.'},
@@ -61,21 +44,14 @@ class KinesisPull(BasicCommand):
 
     UPDATE = False
 
-    QUEUE_SIZE = 10
+    QUEUE_SIZE = 100
 
     def _run_main(self, args, parsed_globals):
-        endpoint_args = {
-            'region_name': None,
-            'endpoint_url': None
-        }
-        if 'region' in parsed_globals:
-            endpoint_args['region_name'] = parsed_globals.region
-        if 'endpoint_url' in parsed_globals:
-            endpoint_args['endpoint_url'] = parsed_globals.endpoint_url
-
         # Initialize services
-        self.kinesis = Service('kinesis', endpoint_args=endpoint_args,
-                            session=self._session)
+        self.kinesis = Service(
+            'kinesis', 
+            endpoint_args=endpoint_config(parsed_globals),
+            session=self._session)
         # Run the command and report success
         self._call(args, parsed_globals)
 
