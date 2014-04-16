@@ -32,12 +32,19 @@ class KinesisPull(BasicCommand):
     SYNOPSIS = ''
 
     ARG_TABLE = [
-        {'name': 'stream-name', 'required': True,
+        
+        {'name': 'stream-name', 
+         'required': True,
          'help_text': 'Specifies the Kinesis stream name'},
-        {'name': 'shard-id', 'required': True, 
+        
+        {'name': 'shard-id', 
+         'required': True, 
          'help_text': 'Specifies the shard id that should be pulled.'
                       'Can be retrieved via describe-stream'},
-        {'name': 'pull-delay', 'cli_type_name': 'integer', 'default': '5',
+        
+        {'name': 'pull-delay', 
+         'cli_type_name': 'integer', 
+         'default': '5',
          'help_text': 'Specifies the delay in seconds before pulling the '
                       'next batch of log events. Defaults to 5 seconds.'},
     ]
@@ -72,16 +79,17 @@ class KinesisPull(BasicCommand):
             renderer = EventsRenderer(stop_flag, queue)
             renderer.start()
             threads.append(renderer)
-            puller = EventsPuller(stop_flag, queue,
-                                  self.kinesis,
-                                  gsi_response['ShardIterator'],
-                                  int(options.pull_delay))
+            puller = EventsPuller(
+                stop_flag, 
+                queue,
+                self.kinesis,
+                gsi_response['ShardIterator'],
+                int(options.pull_delay))
             puller.start()
             threads.append(puller)
         else:
             print('Cannot retrieve shard iterator for stream [%s] / shard [%s] ' %
-                  (options.stream_name, options.shard_id)
-                  )
+                  (options.stream_name, options.shard_id))
 
         self._wait_on_exit(stop_flag)
         for thread in threads:

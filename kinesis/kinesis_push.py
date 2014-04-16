@@ -13,7 +13,8 @@ import six
 from six.moves import queue as Queue
 from botocore.vendored import requests
 from awscli.customizations.kinesis.retry import ExponentialBackoff
-from awscli.customizations.kinesis.utils import log_to_stdout,log_to_stderr, endpoint_config
+from awscli.customizations.kinesis.utils \
+     import log_to_stdout,log_to_stderr, endpoint_config, register_ctrl_c_handler
 from awscli.errorhandler import ServerError
 from awscli.customizations.commands import BasicCommand
 from awscli.customizations.service import Service
@@ -44,13 +45,23 @@ class KinesisPush(BasicCommand):
     DEFAULT_PUSH_DELAY = 1000
 
     ARG_TABLE = [
-        {'name': 'stream-name'},
-        {'name': 'partition-key'},
-        {'name': 'push-delay', 'cli_type_name': 'integer',
+
+        {'name': 'stream-name',
+         'required': True,
+         'help_text': 'Specifies the stream name'},
+        
+        {'name': 'partition-key',
+         'required': True,
+         'help_text': 'Specifies the partition key, e.g. $HOSTNAME'},
+
+        {'name': 'push-delay', 
+         'cli_type_name': 'integer',
          'default': DEFAULT_PUSH_DELAY,
          'help_text': 'Specifies the delay in milliseconds between publishing '
                       'two batches of streams. Defaults to 1000 ms.'},
-        {'name': 'dry-run', 'action': 'store_true',
+
+        {'name': 'dry-run', 
+         'action': 'store_true',
          'help_text': 'Prints stream data instead of sending to service.'},
     ]
 
@@ -64,6 +75,7 @@ class KinesisPush(BasicCommand):
             'kinesis', 
             endpoint_args=endpoint_config(parsed_globals),
             session=self._session)
+        register_ctrl_c_handler()
         self._call_push_stdin(args, parsed_globals)
         return 0
 

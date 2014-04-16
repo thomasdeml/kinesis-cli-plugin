@@ -13,7 +13,6 @@ add shard_iterator_type to arguments
 
 
 separator support?
-add help text to all arguments
 rename kinesis_pull to stream-put
 rename kinesis_push to stream-get
 remove pull.py and push.py

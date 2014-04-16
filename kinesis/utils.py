@@ -12,10 +12,10 @@
 # language governing permissions and limitations under the License.
 
 
-from sys import stdin, stderr, stdout
+from sys import stdin, stderr, stdout, exit
 from datetime import datetime
 import time
-
+import signal
 from dateutil.tz import *
 
 ISO8601_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
@@ -66,3 +66,11 @@ def endpoint_config(global_args):
     if 'endpoint_url' in global_args:
         endpoint_args['endpoint_url'] = global_args.endpoint_url
     return endpoint_args   
+
+def ctrl_c_handler(signum, frame):
+  print("\nYou hit Ctrl+C.\nExiting ")
+  exit()
+
+def register_ctrl_c_handler():
+  signal.signal(signal.SIGINT, ctrl_c_handler)
+
