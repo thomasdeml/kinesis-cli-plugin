@@ -39,8 +39,9 @@ def inject_command(command_table, session, **kwargs):
 
 class KinesisPush(BasicCommand):
     NAME = 'push'
-    DESCRIPTION = ('This command pushes streams to a Kinesis stream.  '
-                   'Events can come from either standard input or files.')
+    DESCRIPTION = ('This command pushes records to a Kinesis stream.  '
+                   'Standard input is read line by line and sent as record. '
+                   'A partition key has to be specified as well.')
     SYNOPSIS = ''
     DEFAULT_PUSH_DELAY = 1000
 
