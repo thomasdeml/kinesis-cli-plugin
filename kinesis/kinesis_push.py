@@ -61,9 +61,9 @@ class KinesisPush(BasicCommand):
          'help_text': 'Specifies the delay in milliseconds between publishing '
                       'two batches of streams. Defaults to 1000 ms.'},
 
-        {'name': 'batch', 
-         'action': 'store_true',
-         'help_text': 'Boolean flag that specifies if records should be ' 
+        {'name': 'no-batch', 
+         'action': 'store_false',
+         'help_text': 'Flag that specifies if records should not be ' 
                       'batched up to the max record size (50kB).'},
 
         {'name': 'dry-run', 
@@ -77,6 +77,7 @@ class KinesisPush(BasicCommand):
 
 
     def _run_main(self, args, parsed_globals):
+        logger.debug("no-batch set to " + str(args.no_batch))
         self.kinesis = Service(
             'kinesis', 
             endpoint_args=endpoint_config(parsed_globals),
@@ -98,7 +99,7 @@ class KinesisPush(BasicCommand):
             self.kinesis, 
             options.stream_name, 
             options.partition_key,
-            options.batch,
+            options.no_batch,
             int(options.push_delay))
         publisher.start()
         threads.append(publisher)
@@ -181,7 +182,7 @@ class RecordPublisher(BaseThread):
                 queue_entry  = self.queue.get(False) 
                 new_data = queue_entry['data']
                 # if batching is turned off we immediately put the data
-                if self.batch_enabled == True and len(data) > 0:
+                if self.batch_enabled == False and len(data) > 0:
                     new_data = self._truncate_if_necessary(new_data, self.MAX_RECORD_SIZE)
                     new_data = new_data.rstrip('\n')
                     self._put_kinesis_record(self.partition_key, new_data)
