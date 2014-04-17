@@ -84,10 +84,10 @@ class KinesisPush(BasicCommand):
         threads = []
         queue = Queue.Queue(self.QUEUE_SIZE)
         stop_flag = Event()
-        reader = StandardInputEventsReader(stop_flag, queue)
+        reader = StandardInputRecordsReader(stop_flag, queue)
         reader.start()
         threads.append(reader)
-        publisher = EventPublisher(
+        publisher = RecordPublisher(
             stop_flag, 
             queue, 
             self.kinesis, 
@@ -112,24 +112,24 @@ class KinesisPush(BasicCommand):
         stop_flag.set()
         exit_checker.join()
 
-class StandardInputEventsReader(BaseThread):
+class StandardInputRecordsReader(BaseThread):
 
     def __init__(self, stop_flag, queue, dry_run=False):
-        super(StandardInputEventsReader, self).__init__(stop_flag)
+        super(StandardInputRecordsReader, self).__init__(stop_flag)
         self.queue = queue
         self.dry_run = dry_run
 
     def _run(self):
         while True:
             line = stdin.readline()
-            message = line.rstrip('\n')
-            if message:
-                event = {'message': message}
+            data = line.rstrip('\n')
+            if data:
+                record = {'data': data}
                 if self.dry_run:
-                    stdout.write(str(event) + '\n')
+                    stdout.write(str(record) + '\n')
                     stdout.flush()
                 else:
-                    self.queue.put(event)
+                    self.queue.put(record)
             # EOF. Note that 'tail FILE' generates EOF
             # while 'tail -f FILE' doesn't.
             if not line:
@@ -140,12 +140,12 @@ class StandardInputEventsReader(BaseThread):
                 break
 
 
-class EventPublisher(BaseThread):
+class RecordPublisher(BaseThread):
 
     MAX_RECORD_SIZE = 50 * 1024
 
     def __init__(self, stop_flag, queue, kinesis_service, stream_name, partition_key, push_delay):
-        super(EventPublisher, self).__init__(stop_flag)
+        super(RecordPublisher, self).__init__(stop_flag)
         self.queue = queue
         self.kinesis_service = kinesis_service
         self.stream_name = stream_name
@@ -157,15 +157,16 @@ class EventPublisher(BaseThread):
     def _run(self):
         while True:
             try:
-                event = self.queue.get(False) 
-                message = event['message']
-                logger.debug('Message: ' + message)
-                if len(message) > self.MAX_RECORD_SIZE:
+                record = self.queue.get(False) 
+                data = record['data']
+                logger.debug('Data: ' + data)
+                if len(data) > self.MAX_RECORD_SIZE:
                     log_to_stdout('Very large record detected. Truncating it to'
                                   ' %d  bytes.' %
                                   (self.MAX_RECORD_SIZE))
-                    event['message'] = message[:self.MAX_RECORD_SIZE]
-                self.sequence_number_for_ordering = self._put_kinesis_record(event)
+                    record['data'] = data[:self.MAX_RECORD_SIZE]
+                self.sequence_number_for_ordering = \
+                    self._put_kinesis_record(self.partition_key, data)
 
             except Queue.Empty:
                 if self.stop_flag.is_set():
@@ -174,10 +175,10 @@ class EventPublisher(BaseThread):
                 else:
                     self.stop_flag.wait(5)
 
-    def _put_kinesis_record(self, event):
+    def _put_kinesis_record(self, partition_key, data):
         params = dict(stream_name=self.stream_name,
-                      partition_key=self.partition_key,
-                      data=event['message'])
+                      partition_key=partition_key,
+                      data=data)
 
         if self.sequence_number_for_ordering:
           params['sequence_number_for_ordering'] = self.sequence_number_for_ordering
