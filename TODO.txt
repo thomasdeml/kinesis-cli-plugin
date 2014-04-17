@@ -4,7 +4,6 @@ why _call?
 endpoint parsing in separate method
 _wait_on_exit in module
 truncate in separate module
-add batching support
 
 
 PULL
@@ -16,3 +15,4 @@ separator support?
 rename kinesis_pull to stream-put
 rename kinesis_push to stream-get
 remove pull.py and push.py
+put classes like StandardInputReader into their own files
