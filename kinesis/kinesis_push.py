@@ -61,6 +61,11 @@ class KinesisPush(BasicCommand):
          'help_text': 'Specifies the delay in milliseconds between publishing '
                       'two batches of streams. Defaults to 1000 ms.'},
 
+        {'name': 'batch', 
+         'action': 'store_true',
+         'help_text': 'Boolean flag that specifies if records should be ' 
+                      'batched up to the max record size (50kB).'},
+
         {'name': 'dry-run', 
          'action': 'store_true',
          'help_text': 'Prints stream data instead of sending to service.'},
@@ -92,7 +97,8 @@ class KinesisPush(BasicCommand):
             queue, 
             self.kinesis, 
             options.stream_name, 
-            options.partition_key, 
+            options.partition_key,
+            options.batch,
             int(options.push_delay))
         publisher.start()
         threads.append(publisher)
@@ -122,7 +128,8 @@ class StandardInputRecordsReader(BaseThread):
     def _run(self):
         while True:
             line = stdin.readline()
-            data = line.rstrip('\n')
+            #data = line.rstrip('\n')
+            data = line
             if data:
                 record = {'data': data}
                 if self.dry_run:
@@ -143,37 +150,67 @@ class StandardInputRecordsReader(BaseThread):
 class RecordPublisher(BaseThread):
 
     MAX_RECORD_SIZE = 50 * 1024
+    MAX_TIME_BETWEEN_PUTS = 5
+    def __init__(
+      self, 
+      stop_flag, 
+      queue, 
+      kinesis_service, 
+      stream_name, 
+      partition_key, 
+      batch_enabled, 
+      push_delay):
 
-    def __init__(self, stop_flag, queue, kinesis_service, stream_name, partition_key, push_delay):
         super(RecordPublisher, self).__init__(stop_flag)
         self.queue = queue
         self.kinesis_service = kinesis_service
         self.stream_name = stream_name
         self.partition_key = partition_key
+        self.batch_enabled = batch_enabled
         self.push_delay = push_delay
         self.sequence_number_for_ordering = None
 
+
+
     @ExponentialBackoff(stderr=True, logger=logger, exception=(ServerError))
     def _run(self):
+        data = ''
+        last_record_put_time = datetime.now()
         while True:
             try:
-                record = self.queue.get(False) 
-                data = record['data']
-                logger.debug('Data: ' + data)
-                if len(data) > self.MAX_RECORD_SIZE:
-                    log_to_stdout('Very large record detected. Truncating it to'
-                                  ' %d  bytes.' %
-                                  (self.MAX_RECORD_SIZE))
-                    record['data'] = data[:self.MAX_RECORD_SIZE]
-                self.sequence_number_for_ordering = \
-                    self._put_kinesis_record(self.partition_key, data)
+                queue_entry  = self.queue.get(False) 
+                new_data = queue_entry['data']
+                # if batching is turned off we immediately put the data
+                if self.batch_enabled == True and len(data) > 0:
+                    new_data = self._truncate_if_necessary(new_data, self.MAX_RECORD_SIZE)
+                    new_data = new_data.rstrip('\n')
+                    self._put_kinesis_record(self.partition_key, new_data)
+                    continue
 
+                logger.debug('New data: ' + new_data)
+                if self._does_new_data_fit(new_data, data, self.MAX_RECORD_SIZE):
+                    logger.debug('adding data to existing batch')
+                    data += new_data
+                    if self._is_time_to_put(last_record_put_time, self.MAX_TIME_BETWEEN_PUTS):
+                        self.sequence_number_for_ordering = \
+                            self._put_kinesis_record(self.partition_key, data)
+                        data = ''
+                        last_record_put_time = datetime.now()
+                else:
+                    self.sequence_number_for_ordering = \
+                        self._put_kinesis_record(self.partition_key, data)
+                    new_data = self._truncate_if_necessary(new_data, self.MAX_RECORD_SIZE)
+                    data = ''
+                    last_record_put_time = datetime.now()
             except Queue.Empty:
                 if self.stop_flag.is_set():
                      logger.debug('Publisher is leaving...')
                      break
                 else:
                     self.stop_flag.wait(5)
+        # still need to put remaining records
+        if len(data) > 0: 
+            self._put_kinesis_record(self.partition_key, data)
 
     def _put_kinesis_record(self, partition_key, data):
         params = dict(stream_name=self.stream_name,
@@ -192,3 +229,27 @@ class RecordPublisher(BaseThread):
           type, value, traceback = exc_info()
           log_to_stderr('Caught exception while putting record to stream %s\n%s' 
                              % (self.stream_name, value))
+
+
+    def _does_new_data_fit(self, new_data, data_batch, max_size):
+      batch_len = len(data_batch)
+      new_data_len = len(new_data)
+      if new_data_len + batch_len > max_size:
+        return False
+      else:
+        return True
+
+    def _is_time_to_put(self, start_time, max_time):
+       span = datetime.now() - start_time
+       if span.seconds > max_time:
+         return True
+       else:
+         return False
+
+    def _truncate_if_necessary(self, data, max_size):
+      if len(data) > max_size:
+        logger.debug("needed to truncate record")
+        return data[1..max_size]
+      else:
+        return data
+
