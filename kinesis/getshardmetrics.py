@@ -13,7 +13,7 @@
 import contextlib
 import os
 import sys
-
+import datetime
 
 from awscli.customizations.commands import BasicCommand
 
@@ -25,15 +25,41 @@ class GetShardMetricsCommand(BasicCommand):
         {'name': 'stream-name', 'required': True, 'help_text': 'The name of the stream'}
     ]
 
-    def _run_main(self, args, parsed_globals):
-        cloudwatch_client = self._session.create_client(
-            'cloudwatch', region_name=parsed_globals.region,
-            endpoint_url=parsed_globals.endpoint_url,
-            verify=parsed_globals.verify_ssl
-        )
-        sys.stdout.write(
-            'Test\n'
-            'Stream Name: %s\n' % (args.stream_name))
+    def aws_client(self, service_name, region, endpoint_url, verify_ssl):
+      client = self._session.create_client(
+        service_name, 
+        region_name=region,
+        endpoint_url=endpoint_url,
+        verify=verify_ssl
+      )
+      return client
+ 
+    def get_stream_shards(self, kinesis_client, stream_name):
+      return 0
 
-        #response = cloudwatch_client.list_metrics()
-        return 0
+    def _run_main(self, args, parsed_globals):
+      cloudwatch_client = self.aws_client('cloudwatch', parsed_globals.region, parsed_globals.endpoint_url, parsed_globals.verify_ssl)
+      kinesis_client = self.aws_client('kinesis', parsed_globals.region, parsed_globals.endpoint_url, parsed_globals.verify_ssl)
+       
+      stream_shards = self.get_stream_shards(kinesis_client, args.stream_name)
+
+      response = cloudwatch_client.get_metric_statistics(
+          Namespace = 'AWS/Kinesis',
+          StartTime = datetime.datetime.utcnow() - datetime.timedelta(minutes=15),
+          EndTime = datetime.datetime.utcnow(),
+          MetricName = 'IncomingRecords',
+          Period = 60,
+          Statistics = ['Sum'],
+          Dimensions=[
+            {
+              'Name': 'StreamName',
+              'Value': args.stream_name
+            },
+          ],
+      )
+      sys.stdout.write(
+        str(response['Datapoints'])
+      )
+      return 0
+
+
