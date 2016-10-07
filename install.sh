@@ -1,3 +1,4 @@
-cp handlers.py /Library/Python/2.7/site-packages/awscli/
-mkdir /Library/Python/2.7/site-packages/awscli/customizations/kinesis
-cp kinesis/* /Library/Python/2.7/site-packages/awscli/customizations/kinesis
+echo "copying source to /usr/local/aws/lib/python2.7/site-packages/awscli/customizations directory"
+sudo rm -rf /usr/local/aws/lib/python2.7/site-packages/awscli/customizations/kinesis
+sudo mkdir /usr/local/aws/lib/python2.7/site-packages/awscli/customizations/kinesis
+sudo cp -r kinesis/*  /usr/local/aws/lib/python2.7/site-packages/awscli/customizations/kinesis/
