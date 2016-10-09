@@ -96,7 +96,7 @@ class GetShardMetricsCommand(BasicCommand):
       if args.statistic not in self.ALLOWED_STATISTICS: 
         raise ValueError('Statistic must be one of these: {0}'.format(str(self.ALLOWED_STATISTICS)))
 
-      if args.duration is None or  args.duration < 1 or args.duration > 30:
+      if args.duration is None or int(args.duration) < 1 or int(args.duration) > 30:
         args.duration = self.DEFAULT_DURATION
       else:
         args.duration = int(args.duration)
