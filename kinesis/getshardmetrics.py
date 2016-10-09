@@ -23,6 +23,7 @@ class GetShardMetricsCommand(BasicCommand):
     DESCRIPTION = """Get Shard Metrics for a Kinesis Stream. The metrics 
       are sorted using the average over the specified duration as the 
       sort key."""
+
     ALLOWED_METRIC_NAMES = [
       'IncomingBytes', 
       'IncomingRecords', 
@@ -94,7 +95,7 @@ class GetShardMetricsCommand(BasicCommand):
       response = self.kinesis_client.describe_stream(
         StreamName = stream_name
       )
-      #BUG BUG - do we need to handle > 100 shards, i.e. pagination!
+      #BUG BUG - do we need to pagination or does the Python SDK?
       shard_ids = []
       for shard in response['StreamDescription']['Shards']:
         shard_ids.append(shard['ShardId'])
