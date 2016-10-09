@@ -9,7 +9,11 @@ class ShardMetrics(object):
       self._has_data = False
 
   def avg(self):
-    return (sum(self.metric_values) / len(self.metric_values))
+    # avoid division by zero
+    if self.metric_values: 
+      return (sum(self.metric_values) / len(self.metric_values))
+    else:  
+      return 0
 
   def max(self):
     return max(self.metric_values)
