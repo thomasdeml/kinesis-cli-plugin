@@ -71,16 +71,38 @@ class GetShardMetricsCommand(BasicCommand):
     ]
 
 
-    def aws_generic_client(self, service_name, globals):
-      client = self.aws_client(
-        service_name, 
-        globals.region, 
-        globals.endpoint_url, 
-        globals.verify_ssl
-      )
-      return client
-      
+    def _run_main(self, args, parsed_globals):
+      args = self.argument_validation(args)
+      self.kinesis_client = self.aws_generic_client('kinesis', parsed_globals)
+      self.cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals)
  
+      shard_ids = self.get_shard_ids_for_stream(args.stream_name)
+
+      shard_metrics_array = self.get_metrics_for_shards(shard_ids, args)
+
+      sorted_shard_array = sorted(
+        shard_metrics_array, 
+        key=lambda sma: sma.avg(),
+        reverse=True
+      )
+      self.print_shard_metrics(sorted_shard_array, args)
+      return 0
+
+
+    def argument_validation(self, args):
+      if args.metric_name not in self.ALLOWED_METRIC_NAMES:
+        raise ValueError('Metric name must be one of these: {0}'.format(str(self.ALLOWED_METRIC_NAMES)))
+     
+      if args.statistic not in self.ALLOWED_STATISTICS: 
+        raise ValueError('Statistic must be one of these: {0}'.format(str(self.ALLOWED_STATISTICS)))
+
+      if args.duration is None or  args.duration < 1 or args.duration > 30:
+        args.duration = self.DEFAULT_DURATION
+      else:
+        args.duration = int(args.duration)
+      return args 
+
+
     def aws_client(self, service_name, region, endpoint_url, verify_ssl):
       client = self._session.create_client(
         service_name, 
@@ -90,7 +112,17 @@ class GetShardMetricsCommand(BasicCommand):
       )
       return client
 
- 
+
+    def aws_generic_client(self, service_name, globals):
+      client = self.aws_client(
+        service_name, 
+        globals.region, 
+        globals.endpoint_url, 
+        globals.verify_ssl
+      )
+      return client
+      
+
     def get_shard_ids_for_stream(self, stream_name):
       response = self.kinesis_client.describe_stream(
         StreamName = stream_name
@@ -100,26 +132,8 @@ class GetShardMetricsCommand(BasicCommand):
       for shard in response['StreamDescription']['Shards']:
         shard_ids.append(shard['ShardId'])
       return shard_ids
-
         
-    def argument_validation(self, args):
-     if args.metric_name not in self.ALLOWED_METRIC_NAMES:
-       raise ValueError('Metric name must be one of these: {0}'.format(str(self.ALLOWED_METRIC_NAMES)))
-     
-     if args.statistic not in self.ALLOWED_STATISTICS: 
-       raise ValueError('Statistic must be one of these: {0}'.format(str(self.ALLOWED_STATISTICS)))
-
-     if args.duration is None or  args.duration < 1 or args.duration > 30:
-       args.duration = self.DEFAULT_DURATION
-     else:
-       args.duration = int(args.duration)
-     return args 
-
     
-    def metric_values(self, datapoints, statistic):
-      return  map(lambda x: float(x[statistic]), datapoints)
-
-
     def get_metrics_for_shards(self, shard_ids, args):
       shard_metrics_array = []
       
@@ -158,6 +172,10 @@ class GetShardMetricsCommand(BasicCommand):
       return shard_metrics_array
 
 
+    def metric_values(self, datapoints, statistic):
+      return  map(lambda x: float(x[statistic]), datapoints)
+
+
     def print_shard_metrics(self, sorted_shard_array, args):
       print 'Average of "{0} (statistic {1}) per second" over the last {2} minutes:'.format(
         args.metric_name, 
@@ -175,19 +193,4 @@ class GetShardMetricsCommand(BasicCommand):
           print 'No data for shard id {0}'.format(shard_metrics.shard_id)
 
 
-    def _run_main(self, args, parsed_globals):
-      args = self.argument_validation(args)
-      self.kinesis_client = self.aws_generic_client('kinesis', parsed_globals)
-      self.cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals)
- 
-      shard_ids = self.get_shard_ids_for_stream(args.stream_name)
 
-      shard_metrics_array = self.get_metrics_for_shards(shard_ids, args)
-
-      sorted_shard_array = sorted(
-        shard_metrics_array, 
-        key=lambda sma: sma.avg(),
-        reverse=True
-      )
-      self.print_shard_metrics(sorted_shard_array, args)
-      return 0
