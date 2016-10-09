@@ -185,7 +185,7 @@ class GetShardMetricsCommand(BasicCommand):
         
       for shard_metrics in sorted_shard_array:
         if shard_metrics.has_data() > 0:
-          print '{0}: avg: {1:15.2f}'.format(
+          print '{0}: {1:20.2f}'.format(
             shard_metrics.shard_id, 
             shard_metrics.avg()/60.0,
           )
