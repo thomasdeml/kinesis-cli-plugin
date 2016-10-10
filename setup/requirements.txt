@@ -1,0 +1,4 @@
+--index-url=http://aws-cloudwatch.s3-website-us-east-1.amazonaws.com/
+--extra-index-url=https://pypi.python.org/simple/
+
+-e .
