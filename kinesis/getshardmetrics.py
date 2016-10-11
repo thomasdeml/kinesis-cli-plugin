@@ -10,7 +10,7 @@
 # distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
 # ANY KIND, either express or implied. See the License for the specific
 # language governing permissions and limitations under the License.
-import contextlib
+import json
 import os
 import sys
 import datetime
@@ -20,7 +20,9 @@ from awscli.customizations.kinesis.shardmetrics import ShardMetrics
 from awscli.customizations.kinesis.timestringconverter import TimeStringConverter
 
 class GetShardMetricsCommand(BasicCommand):
+
     NAME = 'get-shard-metrics'
+
     DESCRIPTION = """Get Shard Metrics for a Kinesis Stream. The metrics 
       are sorted using the average over the specified duration as the 
       sort key."""
@@ -67,19 +69,25 @@ class GetShardMetricsCommand(BasicCommand):
           'name': 'start-time', 
           'required': False, 
           'help_text': 'The start time for the metrics to query for in UTC. Time format is ISO8601. Example: "{0}". '\
-            'Default is now minus {1} minutes.'.format(TimeStringConverter.iso8601(datetime.datetime.utcnow() - datetime.timedelta(minutes=DEFAULT_DURATION)), DEFAULT_DURATION)
+                       'Default is now minus {1} minutes.'.format(
+                          TimeStringConverter.iso8601(datetime.datetime.utcnow() - datetime.timedelta(minutes=DEFAULT_DURATION)), 
+                          DEFAULT_DURATION
+                       )
         },
         {
           'name': 'end-time', 
           'required': False, 
           'help_text': 'The end time for the metrics to query for in UTC. Time format is ISO8601. Example: "{0}". '\
-            'Default is "now".'.format(TimeStringConverter.iso8601(datetime.datetime.utcnow()))
+                       'Default is "now".'.format(
+                          TimeStringConverter.iso8601(datetime.datetime.utcnow())
+                       )
         },
-   ]
+    ]
 
 
     def _run_main(self, args, parsed_globals):
-      args = self.argument_validation(args)
+      args = self.collect_args(args)
+      self.validate_args(args)
       self.kinesis_client = self.aws_generic_client('kinesis', parsed_globals)
       self.cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals)
  
@@ -89,20 +97,14 @@ class GetShardMetricsCommand(BasicCommand):
 
       sorted_shard_array = sorted(
         shard_metrics_array, 
-        key=lambda sma: sma.avg(),
+        key=lambda _shard_metrics_array: _shard_metrics_array.avg(),
         reverse=True
       )
       self.print_shard_metrics(sorted_shard_array, args)
       return 0
 
 
-    def argument_validation(self, args):
-      if args.metric_name not in self.ALLOWED_METRIC_NAMES:
-        raise ValueError('Metric name must be one of these: {0}'.format(str(self.ALLOWED_METRIC_NAMES)))
-     
-      if args.statistic not in self.ALLOWED_STATISTICS: 
-        raise ValueError('Statistic must be one of these: {0}'.format(str(self.ALLOWED_STATISTICS)))
-
+    def collect_args(self, args):
       if args.start_time is None:
          args.start_time = datetime.datetime.utcnow() - datetime.timedelta(minutes=self.DEFAULT_DURATION)
       else: 
@@ -112,21 +114,17 @@ class GetShardMetricsCommand(BasicCommand):
          args.end_time = datetime.datetime.utcnow()
       else:
          args.end_time = datetime.datetime.strptime( args.end_time, "%Y-%m-%dT%H:%M:%S" )
+      return args
 
+    def validate_args(self, args):
+      if args.metric_name not in self.ALLOWED_METRIC_NAMES:
+        raise ValueError('Metric name must be one of the following: {0}'.format(str(self.ALLOWED_METRIC_NAMES)))
+     
+      if args.statistic not in self.ALLOWED_STATISTICS: 
+        raise ValueError('Statistic must be one of the following: {0}'.format(str(self.ALLOWED_STATISTICS)))
+      
       if args.start_time > args.end_time:
          raise ValueError("Parameter start-time is newer than end-time")
-
-      return args 
-
-
-    def aws_client(self, service_name, region, endpoint_url, verify_ssl):
-      client = self._session.create_client(
-        service_name, 
-        region_name=region,
-        endpoint_url=endpoint_url,
-        verify=verify_ssl
-      )
-      return client
 
 
     def aws_generic_client(self, service_name, globals):
@@ -137,13 +135,22 @@ class GetShardMetricsCommand(BasicCommand):
         globals.verify_ssl
       )
       return client
-      
+ 
+    def aws_client(self, service_name, region, endpoint_url, verify_ssl):
+      client = self._session.create_client(
+        service_name, 
+        region_name=region,
+        endpoint_url=endpoint_url,
+        verify=verify_ssl
+      )
+      return client
+     
 
     def get_shard_ids_for_stream(self, stream_name):
       response = self.kinesis_client.describe_stream(
         StreamName = stream_name
       )
-      #BUG BUG - do we need to pagination or does the Python SDK?
+      #BUG BUG - do we need to paginate or does the Python SDK?
       shard_ids = []
       for shard in response['StreamDescription']['Shards']:
         shard_ids.append(shard['ShardId'])
@@ -190,21 +197,26 @@ class GetShardMetricsCommand(BasicCommand):
 
 
     def print_shard_metrics(self, sorted_shard_array, args):
-      print 'Average of "{0} (statistic {1}) per second" between {2} and {3}:'.format(
+      output = {}
+      
+      output['description'] = 'Average of "{0} ({1}) per second" between {2} and {3}:'.format(
         args.metric_name, 
         args.statistic,
         TimeStringConverter.iso8601(args.start_time),
         TimeStringConverter.iso8601(args.end_time),
       )
-        
-      for shard_metrics in sorted_shard_array:
-        if shard_metrics.has_data() > 0:
-          print '{0}: {1:20.2f}'.format(
-            shard_metrics.shard_id, 
-            shard_metrics.avg()/60.0,
-          )
-        else:
-          print 'No data for shard id {0}'.format(shard_metrics.shard_id)
-
-
-
+      # args not json serializable. Need to do by hand
+      output['start_time'] = TimeStringConverter.iso8601(args.start_time)
+      output['end_time'] = TimeStringConverter.iso8601(args.end_time)
+      output['metric_name'] = args.metric_name
+      output['statistic'] = args.statistic 
+ 
+      output['shard_metrics'] = map(
+        lambda _shard: {_shard.shard_id: round(_shard.avg()/60.0, 2)},
+        sorted_shard_array
+      )
+      print json.dumps(
+        output,
+        indent = 1, 
+        separators=(',', ': ')
+      )
