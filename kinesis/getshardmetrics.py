@@ -111,7 +111,7 @@ class GetShardMetricsCommand(BasicCommand):
       if args.end_time is None:
          args.end_time = datetime.datetime.utcnow()
       else:
-         args.end_time = datetime.datetime.strptime( args.start_time, "%Y-%m-%dT%H:%M:%S" )
+         args.end_time = datetime.datetime.strptime( args.end_time, "%Y-%m-%dT%H:%M:%S" )
 
       if args.start_time > args.end_time:
          raise ValueError("Parameter start-time is newer than end-time")
