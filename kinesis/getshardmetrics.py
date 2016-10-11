@@ -114,7 +114,7 @@ class GetShardMetricsCommand(BasicCommand):
          args.end_time = datetime.datetime.strptime( args.start_time, "%Y-%m-%dT%H:%M:%S" )
 
       if args.start_time > args.end_time:
-         raise ValueError("Start time is younger than end time")
+         raise ValueError("Parameter start-time is newer than end-time")
 
       return args 
 
