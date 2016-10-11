@@ -17,6 +17,7 @@ import datetime
 
 from awscli.customizations.commands import BasicCommand
 from awscli.customizations.kinesis.shardmetrics import ShardMetrics
+from awscli.customizations.kinesis.timestringconverter import TimeStringConverter
 
 class GetShardMetricsCommand(BasicCommand):
     NAME = 'get-shard-metrics'
@@ -63,12 +64,18 @@ class GetShardMetricsCommand(BasicCommand):
             'Allowed are: {0}'.format(str(ALLOWED_STATISTICS))
         },
         {
-          'name': 'duration', 
+          'name': 'start-time', 
           'required': False, 
-          'help_text': 'The time duration to query for. Value must '\
-            'be between 1 and 30 minutes. Default is {0}'.format(str(DEFAULT_DURATION))
+          'help_text': 'The start time for the metrics to query for in UTC. Time format is ISO8601. Example: "{0}". '\
+            'Default is now minus {1} minutes.'.format(TimeStringConverter.iso8601(datetime.datetime.utcnow() - datetime.timedelta(minutes=DEFAULT_DURATION)), DEFAULT_DURATION)
         },
-    ]
+        {
+          'name': 'end-time', 
+          'required': False, 
+          'help_text': 'The end time for the metrics to query for in UTC. Time format is ISO8601. Example: "{0}". '\
+            'Default is "now".'.format(TimeStringConverter.iso8601(datetime.datetime.utcnow()))
+        },
+   ]
 
 
     def _run_main(self, args, parsed_globals):
@@ -96,10 +103,19 @@ class GetShardMetricsCommand(BasicCommand):
       if args.statistic not in self.ALLOWED_STATISTICS: 
         raise ValueError('Statistic must be one of these: {0}'.format(str(self.ALLOWED_STATISTICS)))
 
-      if args.duration is None or int(args.duration) < 1 or int(args.duration) > 30:
-        args.duration = self.DEFAULT_DURATION
+      if args.start_time is None:
+         args.start_time = datetime.datetime.utcnow() - datetime.timedelta(minutes=self.DEFAULT_DURATION)
+      else: 
+         args.start_time = datetime.datetime.strptime( args.start_time, "%Y-%m-%dT%H:%M:%S" )
+
+      if args.end_time is None:
+         args.end_time = datetime.datetime.utcnow()
       else:
-        args.duration = int(args.duration)
+         args.end_time = datetime.datetime.strptime( args.start_time, "%Y-%m-%dT%H:%M:%S" )
+
+      if args.start_time > args.end_time:
+         raise ValueError("Start time is younger than end time")
+
       return args 
 
 
@@ -137,14 +153,11 @@ class GetShardMetricsCommand(BasicCommand):
     def get_metrics_for_shards(self, shard_ids, args):
       shard_metrics_array = []
       
-      start_time = datetime.datetime.utcnow() - datetime.timedelta(minutes=args.duration)
-      end_time = datetime.datetime.utcnow()
-
       for shard_id in shard_ids:
         response = self.cloudwatch_client.get_metric_statistics(
             Namespace = 'AWS/Kinesis',
-            StartTime = start_time,
-            EndTime = end_time,
+            StartTime = args.start_time,
+            EndTime = args.end_time,
             MetricName = args.metric_name,
             Period = 60,
             Statistics = [args.statistic],
@@ -177,10 +190,11 @@ class GetShardMetricsCommand(BasicCommand):
 
 
     def print_shard_metrics(self, sorted_shard_array, args):
-      print 'Average of "{0} (statistic {1}) per second" over the last {2} minutes:'.format(
+      print 'Average of "{0} (statistic {1}) per second" between {2} and {3}:'.format(
         args.metric_name, 
         args.statistic,
-        args.duration,
+        TimeStringConverter.iso8601(args.start_time),
+        TimeStringConverter.iso8601(args.end_time),
       )
         
       for shard_metrics in sorted_shard_array:
