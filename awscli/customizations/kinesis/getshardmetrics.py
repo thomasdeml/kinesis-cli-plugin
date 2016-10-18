@@ -16,7 +16,7 @@ import sys
 import datetime
 
 from awscli.customizations.commands import BasicCommand
-from awscli.customizations.kinesis.shardmetrics import ShardMetrics
+from awscli.customizations.kinesis.shardmetricsgetter import ShardMetricsGetter
 from awscli.customizations.kinesis.timestringconverter import TimeStringConverter
 
 class GetShardMetricsCommand(BasicCommand):
@@ -88,19 +88,17 @@ class GetShardMetricsCommand(BasicCommand):
     def _run_main(self, args, parsed_globals):
       args = self.collect_args(args)
       self.validate_args(args)
-      self.kinesis_client = self.aws_generic_client('kinesis', parsed_globals)
-      self.cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals)
- 
-      shard_ids = self.get_shard_ids_for_stream(args.stream_name)
-
-      shard_metrics_array = self.get_metrics_for_shards(shard_ids, args)
-
-      sorted_shard_array = sorted(
-        shard_metrics_array, 
-        key=lambda _shard_metrics_array: _shard_metrics_array.avg(),
-        reverse=True
+      shard_metrics_getter = ShardMetricsGetter( 
+        cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals),
+        kinesis_client = self.aws_generic_client('kinesis', parsed_globals),
+        stream_name = args.stream_name,
+        metric_name = args.metric_name,
+        start_time = args.start_time,
+        end_time = args.end_time,
+        statistics = [args.statistic],
       )
-      self.print_shard_metrics(sorted_shard_array, args)
+      shard_metrics = shard_metrics_getter.get
+      self.print_shard_metrics(shard_metrics, args)
       return 0
 
 
@@ -145,56 +143,6 @@ class GetShardMetricsCommand(BasicCommand):
       )
       return client
      
-
-    def get_shard_ids_for_stream(self, stream_name):
-      response = self.kinesis_client.describe_stream(
-        StreamName = stream_name
-      )
-      #BUG BUG - do we need to paginate or does the Python SDK?
-      shard_ids = []
-      for shard in response['StreamDescription']['Shards']:
-        shard_ids.append(shard['ShardId'])
-      return shard_ids
-        
-    
-    def get_metrics_for_shards(self, shard_ids, args):
-      shard_metrics_array = []
-      
-      for shard_id in shard_ids:
-        response = self.cloudwatch_client.get_metric_statistics(
-            Namespace = 'AWS/Kinesis',
-            StartTime = args.start_time,
-            EndTime = args.end_time,
-            MetricName = args.metric_name,
-            Period = 60,
-            Statistics = [args.statistic],
-            Dimensions=[
-              {
-                'Name': 'StreamName',
-                'Value': args.stream_name
-              },
-              {
-                'Name': 'ShardId',
-                'Value': shard_id
-              },
-            ],
-        )
-        values = self.metric_values(
-          response['Datapoints'],
-          args.statistic
-        )
-        shard_metrics_array.append(
-          ShardMetrics(
-            shard_id, 
-            values, 
-          )
-        )
-      return shard_metrics_array
-
-
-    def metric_values(self, datapoints, statistic):
-      return  map(lambda x: float(x[statistic]), datapoints)
-
 
     def print_shard_metrics(self, sorted_shard_array, args):
       output = {}
