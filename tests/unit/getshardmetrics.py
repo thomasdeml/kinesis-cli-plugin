@@ -3,7 +3,7 @@ import datetime
 from mock import Mock 
 
 #from awscli.testutils import unittest
-from kinesis.getshardmetrics import GetShardMetricsCommand
+from awscli.customizations.kinesis.getshardmetrics import GetShardMetricsCommand
 from mock import MagicMock
 from argparse import Namespace
 
