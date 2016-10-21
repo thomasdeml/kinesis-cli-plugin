@@ -4,6 +4,7 @@ setup(
     name='kinesis_cli_plugin',
     version='0.1',
     py_modules=[
+      'kinesis',
       'kinesis/__init__',
       'kinesis/getshardmetrics',
       'kinesis/shardmetrics', 
