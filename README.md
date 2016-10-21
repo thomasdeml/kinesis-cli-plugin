@@ -6,11 +6,11 @@ The extension adds three commands to the AWS CLI
 ## 1. Shard-level metrics 
    Displays shard-level metrics for the specified stream. By default the datapoints of the last 15 minutes get fetched and averaged. The metric name used by default is 'IncomingRecords'. Use  
 
-   Example 1: `aws --region us-west-2 kinesis get-shard-metrics --stream-name test`
+   Example 1: `aws kinesis get-shard-metrics --stream-name test`
 
-   Example 2: `aws --region us-west-2 kinesis get-shard-metrics --stream-name test --metric WriteProvisionedThroughputExceeded --statistic Sum`
+   Example 2: `aws kinesis get-shard-metrics --stream-name test --metric-name WriteProvisionedThroughputExceeded --statistic Sum`
 
-   Example 3: `aws --region us-west-2 kinesis get-shard-metrics --stream-name test --metric WriteProvisionedThroughputExceeded --start-time 2016-10-10T10:10 --end-time 2016-10-10T11:10`
+   Example 3: `aws kinesis get-shard-metrics --stream-name test --metric-name IncomingBytes --start-time 2016-10-10T10:10:00 --end-time 2016-10-10T11:10:00`
 
 # Installation
 ## Install under Python site-packages:
