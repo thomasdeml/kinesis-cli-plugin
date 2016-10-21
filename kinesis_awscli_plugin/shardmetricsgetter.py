@@ -10,7 +10,7 @@ class ShardMetricsGetter(object):
     start_time,
     end_time,
     metric_name = 'IncomingRecords',
-    statistics = ['Sum'],
+    statistic = 'Average',
     period = 60,
   ):
     self.cloudwatch_client = cloudwatch_client
@@ -19,7 +19,7 @@ class ShardMetricsGetter(object):
     self.start_time = start_time
     self.end_time = end_time
     self.metric_name = metric_name
-    self.statistics = statistics
+    self.statistic = [statistic]
     self.period = period
     self.namespace = 'AWS/Kinesis'
 
@@ -58,13 +58,13 @@ class ShardMetricsGetter(object):
       MetricName = self.metric_name,
       StartTime = self.start_time,
       EndTime = self.end_time,
-      Statistics = self.statistics,
+      Statistics = self.statistic,
       Period = self.period, 
       Dimensions = self.get_dimensions(shard_id),
     )
     values = self.metric_values(
       response['Datapoints'],
-      args.statistic
+      self.statistic
     )
     return values
  
