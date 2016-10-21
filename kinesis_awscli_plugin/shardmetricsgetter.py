@@ -19,7 +19,7 @@ class ShardMetricsGetter(object):
     self.start_time = start_time
     self.end_time = end_time
     self.metric_name = metric_name
-    self.statistic = [statistic]
+    self.statistic = statistic
     self.period = period
     self.namespace = 'AWS/Kinesis'
 
@@ -46,7 +46,7 @@ class ShardMetricsGetter(object):
       shard_metrics_array.append(
         ShardMetrics(
           shard_id, 
-          values, 
+          datapoints, 
         )
       )
     return shard_metrics_array
@@ -58,7 +58,7 @@ class ShardMetricsGetter(object):
       MetricName = self.metric_name,
       StartTime = self.start_time,
       EndTime = self.end_time,
-      Statistics = self.statistic,
+      Statistics = [self.statistic],
       Period = self.period, 
       Dimensions = self.get_dimensions(shard_id),
     )
@@ -88,6 +88,7 @@ class ShardMetricsGetter(object):
     ]
 
   def metric_values(self, datapoints, statistic):
+    
     return  map(lambda x: float(x[statistic]), datapoints)
 
 
