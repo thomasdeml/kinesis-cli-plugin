@@ -95,7 +95,7 @@ class GetShardMetricsCommand(BasicCommand):
         metric_name = args.metric_name,
         start_time = args.start_time,
         end_time = args.end_time,
-        statistic = args.statistic],
+        statistic = args.statistic,
       )
       shard_metrics = shard_metrics_getter.get()
  
