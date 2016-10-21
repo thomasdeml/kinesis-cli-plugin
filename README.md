@@ -1,17 +1,7 @@
 kinesis-cli-extension
 =====================
 
-# Kinesis AWS Command-line Interface Extension
-The extension adds three commands to the AWS CLI
-## 1. Shard-level metrics 
-   Displays shard-level metrics for the specified stream. By default the datapoints of the last 15 minutes get fetched and averaged. The metric name used by default is 'IncomingRecords'. Use  
-
-   Example 1: `aws kinesis get-shard-metrics --stream-name test`
-
-   Example 2: `aws kinesis get-shard-metrics --stream-name test --metric-name WriteProvisionedThroughputExceeded --statistic Sum`
-
-   Example 3: `aws kinesis get-shard-metrics --stream-name test --metric-name IncomingBytes --start-time 2016-10-10T10:10:00 --end-time 2016-10-10T11:10:00`
-
+# Kinesis AWS Command-line Interface Plugin
 # Installation
 ## Pip Install 
    Execute the following command To install the Kinesis AWS CLI Plugin under Python site-packages:
@@ -21,6 +11,18 @@ The extension adds three commands to the AWS CLI
    Execute the following command to install the plugin in your ~/.aws/config file
 
    `aws configure set plugins.kinesis kinesis_awscli_plugin`
+
+# Usage
+   This plugin adds three commands to the AWS CLI
+
+## 1. Shard-level metrics 
+   Displays shard-level metrics for the specified stream. By default the datapoints of the last 15 minutes get fetched and averaged. The metric name used by default is 'IncomingRecords'. Use  
+
+   Example 1: `aws kinesis get-shard-metrics --stream-name test`
+
+   Example 2: `aws kinesis get-shard-metrics --stream-name test --metric-name WriteProvisionedThroughputExceeded --statistic Sum`
+
+   Example 3: `aws kinesis get-shard-metrics --stream-name test --metric-name IncomingBytes --start-time 2016-10-10T10:10:00 --end-time 2016-10-10T11:10:00`
 
 # NOT QUITE READY
 ## 2. Push support 
