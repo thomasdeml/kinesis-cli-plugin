@@ -20,6 +20,6 @@ The extension adds three commands to the AWS CLI
 ## Install under Python site-packages:
 `sudo pip install -U git+https://github.com/thomasdeml/kinesis-cli-extension.git --ignore-installed six`
 ## Install plugin in your ~/.aws/config file
-`aws configure set plugins.kinesis kinesis_awscli_plugin
+`aws configure set plugins.kinesis kinesis_awscli_plugin`
 
  
