@@ -24,9 +24,9 @@ class ShardMetricsGetter(object):
     self.namespace = 'AWS/Kinesis'
 
   def get(self):
-    shard_ids = get_shard_ids_for_stream()
-    shard_metrics_array = get_shard_metrics(shard_ids)
-    return sort(shard_metrics_array)
+    shard_ids = self.get_shard_ids_for_stream()
+    shard_metrics_array = self.get_shard_metrics(shard_ids)
+    return self.sort(shard_metrics_array)
 
   def get_shard_ids_for_stream(self):
     #BUG BUG - do we need to paginate or does the Python SDK?
@@ -42,7 +42,7 @@ class ShardMetricsGetter(object):
   def get_shard_metrics(self, shard_ids):
     shard_metrics_array = []
     for shard_id in shard_ids:
-      datapoints = get_shard_datapoints(shard_id)
+      datapoints = self.get_shard_datapoints(shard_id)
       shard_metrics_array.append(
         ShardMetrics(
           shard_id, 
