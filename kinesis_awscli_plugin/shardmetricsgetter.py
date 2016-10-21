@@ -1,4 +1,4 @@
-from awscli.customizations.kinesis.shardmetrics import ShardMetrics
+from kinesis_awscli_plugin.shardmetrics import ShardMetrics
 
 class ShardMetricsGetter(object):
  

@@ -16,8 +16,8 @@ import sys
 import datetime
 
 from awscli.customizations.commands import BasicCommand
-from awscli.customizations.kinesis.shardmetricsgetter import ShardMetricsGetter
-from awscli.customizations.kinesis.timestringconverter import TimeStringConverter
+from kinesis_awscli_plugin.shardmetricsgetter import ShardMetricsGetter
+from kinesis_awscli_plugin.timestringconverter import TimeStringConverter
 
 class GetShardMetricsCommand(BasicCommand):
 
