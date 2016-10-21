@@ -60,7 +60,7 @@ class ShardMetricsGetter(object):
       EndTime = self.end_time,
       Statistics = self.statistics,
       Period = self.period, 
-      Dimensions = get_dimensions(shard_id),
+      Dimensions = self.get_dimensions(shard_id),
     )
     values = self.metric_values(
       response['Datapoints'],
