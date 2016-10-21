@@ -1,5 +1,5 @@
 from awscli.customizations.commands import BasicCommand
-from kinesis.getshardmetrics import GetShardMetricsCommand
+from kinesis_awscli_plugin.getshardmetrics import GetShardMetricsCommand
 
 def awscli_initialize(event_emitter):
     event_emitter.register('building-command-table.kinesis', inject_commands)
