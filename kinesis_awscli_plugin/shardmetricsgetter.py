@@ -56,7 +56,7 @@ class ShardMetricsGetter(object):
     response = self.cloudwatch_client.get_metric_statistics(
       Namespace = self.namespace,
       MetricName = self.metric_name,
-      StarTime = self.start_time,
+      StartTime = self.start_time,
       EndTime = self.end_time,
       Statistics = self.statistics,
       Period = self.period, 
