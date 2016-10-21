@@ -15,13 +15,19 @@ This Plugin adds three Kinesis commands to the AWS CLI
 # Usage
 
 ### 1. Shard-level metrics 
-   Displays shard-level metrics for the specified stream. By default the datapoints of the last 15 minutes get fetched and averaged. The metric name used by default is 'IncomingRecords'. Use  
+   Displays shard-level metrics for the specified stream. By default the datapoints of the last 15 minutes get fetched and averaged. The metric name used by default is 'IncomingRecords'.   
 
-   Example 1: `aws kinesis get-shard-metrics --stream-name test`
+   Example 1: 
+   
+   `aws kinesis get-shard-metrics --stream-name test`
 
-   Example 2: `aws kinesis get-shard-metrics --stream-name test --metric-name WriteProvisionedThroughputExceeded --statistic Sum`
+   Example 2: 
+   
+   `aws kinesis get-shard-metrics --stream-name test --metric-name WriteProvisionedThroughputExceeded --statistic Sum`
 
-   Example 3: `aws kinesis get-shard-metrics --stream-name test --metric-name IncomingBytes --start-time 2016-10-10T10:10:00 --end-time 2016-10-10T11:10:00`
+   Example 3: 
+   
+   `aws kinesis get-shard-metrics --stream-name test --metric-name IncomingBytes --start-time 2016-10-10T10:10:00 --end-time 2016-10-10T11:10:00`
 
 # NOT QUITE READY
 ### 2. Push support 
