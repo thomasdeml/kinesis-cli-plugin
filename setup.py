@@ -4,11 +4,11 @@ setup(
     name='kinesis_cli_plugin',
     version='0.1',
     py_modules=[
-      'kinesisregister.py',
-      'kinesis/getshardmetrics.py',
-      'kinesis/shardmetrics.py', 
-      'kinesis/shardmetricsgetter.py',
-      'kinesis/timestringconverter.py',
+      'kinesisregister',
+      'kinesis/getshardmetrics',
+      'kinesis/shardmetrics', 
+      'kinesis/shardmetricsgetter',
+      'kinesis/timestringconverter',
     ],
     install_requires=[
         'awscli',
