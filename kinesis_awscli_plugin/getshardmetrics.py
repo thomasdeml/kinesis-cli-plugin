@@ -109,6 +109,12 @@ class GetShardMetricsCommand(BasicCommand):
       else: 
          args.start_time = datetime.datetime.strptime( args.start_time, "%Y-%m-%dT%H:%M:%S" )
 
+      if args.metric_name is None: 
+         args.metric_name = 'IncomingRecords'
+
+      if args.statistic is None:
+         args.statistic = 'Average'
+
       if args.end_time is None:
          args.end_time = datetime.datetime.utcnow()
       else:
