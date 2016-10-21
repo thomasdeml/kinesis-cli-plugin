@@ -55,14 +55,14 @@ class GetShardMetricsCommand(BasicCommand):
         },
         {
           'name': 'metric-name', 
-          'required': True, 
-          'help_text': 'The name of the metric to query for. Allowed '\
+          'required': False, 
+          'help_text': 'The name of the metric to query for. Default is "IncomingRecords". Allowed '\
             'are {0}:'.format(str(ALLOWED_METRIC_NAMES))
         },
         {
           'name': 'statistic', 
-          'required': True, 
-          'help_text': 'The name of the statistic to query for. '\
+          'required': False, 
+          'help_text': 'The name of the statistic to query for. Default is "Average".'\
             'Allowed are: {0}'.format(str(ALLOWED_STATISTICS))
         },
         {
