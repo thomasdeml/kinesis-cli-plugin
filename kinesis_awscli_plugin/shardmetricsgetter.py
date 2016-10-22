@@ -62,11 +62,10 @@ class ShardMetricsGetter(object):
       Period = self.period, 
       Dimensions = self.get_dimensions(shard_id),
     )
-    values = self.metric_values(
+    return self.metric_values(
       response['Datapoints'],
       self.statistic
     )
-    return values
  
   def sort(self, shard_metrics_array):
     return  sorted(
