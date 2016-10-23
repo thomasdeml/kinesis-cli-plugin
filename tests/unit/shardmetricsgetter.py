@@ -40,40 +40,29 @@ class TestShardMetricsGetter:
         }, 
       ]
     }
-    self.cloudwatch_mock.get_metric_statistic = MagicMock(return_value = self.get_metric_statistics_response)
+    self.cloudwatch_mock.get_metric_statistics = MagicMock(return_value = self.get_metric_statistics_response)
+
+  def mock_shard_metrics_getter(self):
+    return ShardMetricsGetter(
+      self.cloudwatch_mock,
+      self.kinesis_mock,
+      'test',
+      TimeStringConverter.iso8601(datetime.datetime.utcnow()),
+      TimeStringConverter.iso8601(datetime.datetime.utcnow() - datetime.timedelta(minutes=15)),
+    )
       
   def test_get(self):
-    metrics_getter = ShardMetricsGetter(
-      self.cloudwatch_mock,
-      self.kinesis_mock,
-      'test',
-      TimeStringConverter.iso8601(datetime.datetime.utcnow()),
-      TimeStringConverter.iso8601(datetime.datetime.utcnow() - datetime.timedelta(minutes=15)),
-    )
+    metrics_getter = self.mock_shard_metrics_getter()
     metrics = metrics_getter.get()  
     assert len(metrics) == 2
-    #print "Values: %s. Avg: %s" % (metrics[0].metric_values, metrics[0].avg())
-    #assert metrics[0].avg() == 6.0
-
+    assert metrics[0].avg() == 6.0
 
   def test_get_shard_datapoints(self):
-    metrics_getter = ShardMetricsGetter(
-      self.cloudwatch_mock,
-      self.kinesis_mock,
-      'test',
-      TimeStringConverter.iso8601(datetime.datetime.utcnow()),
-      TimeStringConverter.iso8601(datetime.datetime.utcnow() - datetime.timedelta(minutes=15)),
-    )
+    metrics_getter = self.mock_shard_metrics_getter()
     values = metrics_getter.get_shard_datapoints('abc')
-    #assert len(values) == 3
+    assert len(values) == 3
  
   def test_metric_values(self):
-    metrics_getter = ShardMetricsGetter(
-      self.cloudwatch_mock,
-      self.kinesis_mock,
-      'test',
-      TimeStringConverter.iso8601(datetime.datetime.utcnow()),
-      TimeStringConverter.iso8601(datetime.datetime.utcnow() - datetime.timedelta(minutes=15)),
-    )
+    metrics_getter = self.mock_shard_metrics_getter()
     values = metrics_getter.metric_values(self.get_metric_statistics_response['Datapoints'], 'Average')
     assert len(values) == 3

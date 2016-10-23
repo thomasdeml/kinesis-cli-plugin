@@ -87,7 +87,6 @@ class ShardMetricsGetter(object):
     ]
 
   def metric_values(self, datapoints, statistic):
-    
     return  map(lambda x: float(x[statistic]), datapoints)
 
 
