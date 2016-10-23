@@ -29,11 +29,11 @@ This Plugin adds three Kinesis commands to the AWS CLI
    
    `aws kinesis get-shard-metrics --stream-name test --metric-name IncomingBytes --start-time 2016-10-10T10:10:00 --end-time 2016-10-10T11:10:00`
 
-# NOT QUITE READY
 ### 2. Push support 
    By piping output to the push extension, data gets put into the specified Kinesis Stream. 
 
    Example: `tail -f logfile | aws --region us-west-2 kinesis push --stream-name Test --partition-key test`
+
 ### 3. Pull support
    The pull command calls GetRecords in a loop for the specified stream and shard.
 
