@@ -62,7 +62,7 @@ class PullCommand(BasicCommand):
         params = dict(stream_name=options.stream_name,
                       shard_id=options.shard_id, 
                       shard_iterator_type = 'LATEST')
-        gsi_response = self.kinesis.GetShardIterator(**params)
+        gsi_response = self.kinesis.get_shard_iterator(**params)
 
         threads = []
         stop_flag = Event()
@@ -123,7 +123,7 @@ class EventsPuller(BaseThread):
                          (self.next_shard_iterator))
 
             params = dict(shard_iterator=self.next_shard_iterator)
-            gr_response = self.kinesis_service.GetRecords(**params)
+            gr_response = self.kinesis_service.get_records(**params)
             if gr_response:
                 records = gr_response['Records']
                 if len(records) == 0:
