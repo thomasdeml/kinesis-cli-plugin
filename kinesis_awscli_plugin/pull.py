@@ -11,10 +11,9 @@ from botocore.vendored import requests
 
 from awscli.errorhandler import ServerError
 from awscli.customizations.commands import BasicCommand
-from awscli.customizations.kinesis import utils
-from awscli.customizations.kinesis.retry import ExponentialBackoff
-from awscli.customizations.kinesis.threads import BaseThread, ExitChecker
-from awscli.customizations.kinesis.utils import endpoint_config
+#from awscli.customizations.kinesis import utils
+from kinesis_awscli_plugin.retry import ExponentialBackoff
+from kinesis_awscli_plugin.threads import BaseThread, ExitChecker
 
 logger = logging.getLogger(__name__)
 
