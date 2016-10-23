@@ -38,7 +38,7 @@ class PullCommand(BasicCommand):
          'cli_type_name': 'integer', 
          'default': '5',
          'help_text': 'Specifies the delay in seconds before pulling the '
-                      'next batch of log events. Defaults to 5 seconds.'},
+                      'next batch of records. Defaults to 5 seconds.'},
     ]
 
     UPDATE = False
