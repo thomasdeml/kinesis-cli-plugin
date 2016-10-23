@@ -48,8 +48,10 @@ class PullCommand(BasicCommand):
         # Initialize services
         self.kinesis = self._session.create_client(
             'kinesis', 
-            endpoint_args=endpoint_config(parsed_globals),
-            session=self._session)
+            region_name=parsed_globals.region,
+            endpoint_url = parsed_globals.endpoint_url,
+            verify = parsed_globals.verify_ssl
+        )
         # Run the command and report success
         self._call(args, parsed_globals)
 
