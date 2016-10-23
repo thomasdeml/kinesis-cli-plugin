@@ -14,9 +14,9 @@ from six.moves import queue as Queue
 from botocore.vendored import requests
 from awscli.errorhandler import ServerError
 from awscli.customizations.commands import BasicCommand
-from awscli.customizations.kinesis.threads import BaseThread, ExitChecker
-from awscli.customizations.kinesis.retry import ExponentialBackoff
-from awscli.customizations.kinesis.utils \
+from kinesis_awscli_plugin.threads import BaseThread, ExitChecker
+from kinesis_awscli_plugin.retry import ExponentialBackoff
+from kinesis_awscli_plugin.utils \
      import log_to_stdout,log_to_stderr, endpoint_config, register_ctrl_c_handler
 import botocore
 import botocore.exceptions
@@ -205,12 +205,12 @@ class RecordPublisher(BaseThread):
             self._put_kinesis_record(self.partition_key, data)
 
     def _put_kinesis_record(self, partition_key, data):
-        params = dict(stream_name=self.stream_name,
-                      partition_key=partition_key,
-                      data=data)
+        params = dict(StreamName=self.stream_name,
+                      PartitionKey=partition_key,
+                      Data=data)
 
         if self.sequence_number_for_ordering:
-          params['sequence_number_for_ordering'] = self.sequence_number_for_ordering
+          params['SequenceNumberForOrdering'] = self.sequence_number_for_ordering
         
         try:
           response = self.kinesis_service.put_record(**params)
