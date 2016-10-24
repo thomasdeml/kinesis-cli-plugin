@@ -177,7 +177,7 @@ class RecordPublisher(BaseThread):
                        m = hashlib.md5()
                        m.update(new_data)
                        partition_key_to_use = m.hexdigest()
-                    else
+                    else:
                        partition_key_to_use = self.partition_key
                     self._put_kinesis_record(partition_key_to_use, new_data)
                     continue
