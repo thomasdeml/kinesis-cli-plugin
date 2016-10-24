@@ -61,7 +61,6 @@ class PushCommand(BasicCommand):
 
 
     def _run_main(self, args, parsed_globals):
-        logger.debug("no-batch set to " + str(args.no_batch))
         self.kinesis = self._session.create_client(
             'kinesis', 
             region_name=parsed_globals.region,
