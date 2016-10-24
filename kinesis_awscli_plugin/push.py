@@ -24,8 +24,9 @@ from six.moves import configparser
 from sys import stdout
 from awscli.errorhandler import ServerError
 
+logging.basicConfig(filename='debug.log',level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
+logging.basicConfig(filename='example.log',level=logging.DEBUG)
 class PushCommand(BasicCommand):
     NAME = 'push'
     DESCRIPTION = ('This command pushes records to a Kinesis stream.  '
