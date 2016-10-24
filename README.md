@@ -43,5 +43,7 @@ This Plugin adds three Kinesis commands to the AWS CLI
 ### 3. Pull support
    The pull command calls GetRecords in a loop for the specified stream and shard.
 
-   Example: `aws kinesis pull --stream-name Test --shard-id shardId-000000000001`
+   Example: 
+
+   `aws kinesis pull --stream-name Test --shard-id shardId-000000000001`
 
