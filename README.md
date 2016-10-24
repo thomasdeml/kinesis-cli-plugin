@@ -19,23 +19,29 @@ This Plugin adds three Kinesis commands to the AWS CLI
 
    Example 1: 
    
-   `aws kinesis get-shard-metrics --stream-name test`
+   `aws kinesis get-shard-metrics --stream-name Test`
 
    Example 2: 
    
-   `aws kinesis get-shard-metrics --stream-name test --metric-name WriteProvisionedThroughputExceeded --statistic Sum`
+   `aws kinesis get-shard-metrics --stream-name Test --metric-name WriteProvisionedThroughputExceeded --statistic Sum`
 
    Example 3: 
    
-   `aws kinesis get-shard-metrics --stream-name test --metric-name IncomingBytes --start-time 2016-10-10T10:10:00 --end-time 2016-10-10T11:10:00`
+   `aws kinesis get-shard-metrics --stream-name Test --metric-name IncomingBytes --start-time 2016-10-10T10:10:00 --end-time 2016-10-10T11:10:00`
 
 ### 2. Push support 
    By piping output to the push extension, data gets put into the specified Kinesis Stream. 
 
-   Example: `tail -f logfile | aws --region us-west-2 kinesis push --stream-name Test --partition-key test`
+   Example 1: 
+   
+   `tail -f logfile | aws kinesis push --stream-name Test --disable-batch`
+  
+   Example 2: 
+
+   `cat /var/log/* | aws kinesis push --stream-name Test --partition-key $(hostname)`
 
 ### 3. Pull support
    The pull command calls GetRecords in a loop for the specified stream and shard.
 
-   Example: `aws --region us-west-2 kinesis pull --stream-name test --shard-id shardId-000000000001`
+   Example: `aws kinesis pull --stream-name Test --shard-id shardId-000000000001`
 
