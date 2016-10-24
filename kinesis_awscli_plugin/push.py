@@ -84,7 +84,7 @@ class PushCommand(BasicCommand):
             self.kinesis, 
             options.stream_name, 
             options.partition_key,
-            true, # enables batching
+            True, # enables batching
             int(options.push_delay))
         publisher.start()
         threads.append(publisher)
