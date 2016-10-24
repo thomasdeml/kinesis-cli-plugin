@@ -69,7 +69,8 @@ class PullCommand(BasicCommand):
         logger.debug(str(gsi_response))
         if gsi_response and gsi_response['ShardIterator']:
             queue = Queue.Queue(self.QUEUE_SIZE)
-            renderer = RecordRenderer(stop_flag, queue)
+            # BUGBUG: using pull delay also for rendering!!!
+            renderer = RecordRenderer(stop_flag, queue, options.pull_delay)
             renderer.start()
             threads.append(renderer)
             puller = RecordsPuller(
@@ -139,9 +140,10 @@ class RecordsPuller(BaseThread):
 
 
 class RecordRenderer(BaseThread):
-    def __init__(self, stop_flag, queue):
+    def __init__(self, stop_flag, queue, render_delay):
         super(RecordRenderer, self).__init__(stop_flag)
         self.queue = queue
+        self.render_delay = render_delay
 
     def _run(self):
         while True:
@@ -159,7 +161,7 @@ class RecordRenderer(BaseThread):
                     break
                 else:
                     logger.debug('waiting for more data')
-                    self.stop_flag.wait(5)
+                    self.stop_flag.wait(self.render_delay)
 
 
 class RecordBatch:
