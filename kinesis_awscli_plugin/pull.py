@@ -161,7 +161,8 @@ class RecordRenderer(BaseThread):
                     break
                 else:
                     logger.debug('waiting for more data')
-                    self.stop_flag.wait(self.render_delay)
+                    # wait expects time in seconds. Command-line passes it in milliseconds
+                    self.stop_flag.wait(float(self.render_delay/1000.0))
 
 
 class RecordBatch:
