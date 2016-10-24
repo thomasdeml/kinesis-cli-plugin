@@ -97,29 +97,22 @@ class GetStreamMetricsCommand(BasicCommand):
     def _run_main(self, args, parsed_globals):
       args = self.collect_args(args)
       self.validate_args(args)
-      stream_metrics_getter = KinesisMetricsGetter( 
-        cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals),
-        kinesis_client = self.aws_generic_client('kinesis', parsed_globals),
-        stream_name = args.stream_name,
-        metric_names = args.metric_names,
-        start_time = args.start_time,
-        end_time = args.end_time,
-        statistic = args.statistic,
-      )
-      stream_metrics = stream_metrics_getter.get()
- 
-      output = self.create_stream_metrics_output(stream_metrics, args)
+      stream_metrics_array = []
+      for _metric_name in args.metric_names:
+        stream_metrics_getter = KinesisMetricsGetter( 
+	  cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals),
+	  kinesis_client = self.aws_generic_client('kinesis', parsed_globals),
+	  stream_name = args.stream_name,
+	  metric_name = _metric_name,
+	  start_time = args.start_time,
+	  end_time = args.end_time,
+	  statistic = args.statistic,
+        )
+        stream_metrics = stream_metrics_getter.get()
+        stream_metrics_array.append(stream_metrics)
+      output = self.create_stream_metrics_output(stream_metrics_array, args)
       self._display_response('get-stream-metrics', output, parsed_globals)
       return 0
-
-    def _display_response(self, command_name, response,
-                          parsed_globals):
-        output = parsed_globals.output
-        if output is None:
-            output = self._session.get_config_variable('output')
-        formatter = get_formatter(output, parsed_globals)
-        formatter(command_name, response)
-
 
     def collect_args(self, args):
       if args.start_time is None:
@@ -140,8 +133,9 @@ class GetStreamMetricsCommand(BasicCommand):
       return args
 
     def validate_args(self, args):
-      if args.metric_names not in self.STREAM_METRIC_NAMES:
-        raise ValueError('Metric name must be one of the following: {0}'.format(str(self.STREAM_METRIC_NAMES)))
+      for _metric in args.metric_names:
+        if _metric not in self.STREAM_METRIC_NAMES:
+          raise ValueError("{0} not found. Metric name must be one of the following: {1}".format(_metric, str(self.STREAM_METRIC_NAMES)))
      
       if args.statistic not in self.ALLOWED_STATISTICS: 
         raise ValueError('Statistic must be one of the following: {0}'.format(str(self.ALLOWED_STATISTICS)))
@@ -169,23 +163,32 @@ class GetStreamMetricsCommand(BasicCommand):
       return client
      
 
-    def create_shard_metrics_output(self, sorted_shard_array, args):
+    def create_stream_metrics_output(self, metrics_array, args):
       output = {}
       
-      output['description'] = 'Sorted average of "{0} ({1}) per second" between {2} and {3}'.format(
-        args.metric_names, 
-        args.statistic,
+      output['description'] = 'Stream metrics average of "{0}" for stream "{0}" between {1} and {2}'.format(
+        args.statistic, 
+        args.stream_name,
         TimeStringConverter.iso8601(args.start_time),
         TimeStringConverter.iso8601(args.end_time),
       )
       # args not json serializable. Need to do by hand
       output['start_time'] = TimeStringConverter.iso8601(args.start_time)
       output['end_time'] = TimeStringConverter.iso8601(args.end_time)
-      output['metric_name'] = args.metric_name
+      output['metric_names'] = args.metric_names
       output['statistic'] = args.statistic 
  
-      output['shard_metrics'] = map(
-        lambda _shard: {'ShardId': _shard.shard_id, 'Average': round(_shard.avg()/60.0, 2), 'Datapoints': _shard.metric_values},
-        sorted_shard_array
+      output['metrics'] = map(
+        lambda _kinesis_metrics: {'Metric': _kinesis_metrics.metric_name, 'Average': round(_kinesis_metrics.avg()/60.0, 2), 'Datapoints': _kinesis_metrics.metric_values},
+        metrics_array
       )
       return output
+
+    def _display_response(self, command_name, response,
+                          parsed_globals):
+        output = parsed_globals.output
+        if output is None:
+            output = self._session.get_config_variable('output')
+        formatter = get_formatter(output, parsed_globals)
+        formatter(command_name, response)
+
