@@ -43,12 +43,14 @@ class ShardMetricsGetter(object):
     shard_metrics_array = []
     for shard_id in shard_ids:
       datapoints = self.get_shard_datapoints(shard_id)
-      shard_metrics_array.append(
-        ShardMetrics(
-          shard_id, 
-          datapoints, 
+      # only append if we got data:
+      if len(datapoints) > 0: 
+        shard_metrics_array.append(
+          ShardMetrics(
+            shard_id, 
+            datapoints, 
+          )
         )
-      )
     return shard_metrics_array
 
 
