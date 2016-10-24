@@ -37,9 +37,9 @@ This Plugin adds three Kinesis commands to the AWS CLI
  
    **Example 4:**
    
-   Show only the average of the datapoints over the queried timeframe.
+   Show only the average of the datapoints over the queried timeframe. Output is also in table format.
 
-   `aws kinesis get-shard-metrics --stream-name Test --metric-name IncomingBytes --statistic Sum --query "shard_metrics[*].{ShardId:ShardId,Average:Average}"`
+   `aws kinesis get-shard-metrics --stream-name Test --metric-name IncomingBytes --statistic Sum --query "shard_metrics[*].{ShardId:ShardId,Average:Average}" --output table`
 
 ### 2. Push support 
    By piping output to the push extension, data gets put into the specified Kinesis Stream. 
