@@ -99,8 +99,8 @@ class GetShardMetricsCommand(BasicCommand):
       )
       shard_metrics = shard_metrics_getter.get()
  
-      self.print_shard_metrics(shard_metrics, args)
-      return 0
+      #self.print_shard_metrics(shard_metrics, args)
+      return {'foo': {'bar': 123, 'zoo': 456}}
 
 
     def collect_args(self, args):
