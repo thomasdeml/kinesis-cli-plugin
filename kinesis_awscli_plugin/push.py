@@ -41,19 +41,14 @@ class PushCommand(BasicCommand):
          'help_text': 'Specifies the stream name'},
         
         {'name': 'partition-key',
-         'required': True,
-         'help_text': 'Specifies the partition key, e.g. $HOSTNAME'},
+         'required': False,
+         'help_text': 'Specifies the partition key, e.g. $HOSTNAME. If not provided the partition key is random number.'},
 
         {'name': 'push-delay', 
          'cli_type_name': 'integer',
          'default': DEFAULT_PUSH_DELAY,
          'help_text': 'Specifies the delay in milliseconds between publishing '
                       'two batches of streams. Defaults to 1000 ms.'},
-
-        {'name': 'no-batch', 
-         'action': 'store_false',
-         'help_text': 'Flag that specifies if records should not be ' 
-                      'batched up to the max record size (50kB).'},
 
         {'name': 'dry-run', 
          'action': 'store_true',
@@ -90,7 +85,7 @@ class PushCommand(BasicCommand):
             self.kinesis, 
             options.stream_name, 
             options.partition_key,
-            options.no_batch,
+            true, # enables batching
             int(options.push_delay))
         publisher.start()
         threads.append(publisher)
@@ -166,6 +161,8 @@ class RecordPublisher(BaseThread):
 
     @ExponentialBackoff(stderr=True, logger=logger, exception=(ServerError))
     def _run(self):
+        m = hashlib.md5()
+
         data = ''
         last_record_put_time = datetime.now()
         while True:
@@ -176,10 +173,15 @@ class RecordPublisher(BaseThread):
                 if self.batch_enabled == False and len(data) > 0:
                     new_data = self._truncate_if_necessary(new_data, self.MAX_RECORD_SIZE)
                     new_data = new_data.rstrip('\n')
-                    self._put_kinesis_record(self.partition_key, new_data)
+                    if self.partition_key is None: 
+                       m = hashlib.md5()
+                       m.update(new_data)
+                       partition_key_to_use = m.hexdigest()
+                    else
+                       partition_key_to_use = self.partition_key
+                    self._put_kinesis_record(partition_key_to_use, new_data)
                     continue
-
-                logger.debug('New data: ' + new_data)
+                logger.debug('New data: ' + new_data + '\n')
                 if self._does_new_data_fit(new_data, data, self.MAX_RECORD_SIZE):
                     logger.debug('adding data to existing batch')
                     data += new_data
