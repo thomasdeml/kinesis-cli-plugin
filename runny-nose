@@ -1,2 +1,0 @@
-export PYTHONPATH="/Library/Python/2.7/site-packages:$PYTHONPATH"
-nosetests -s -v tests/unit/shardmetricsgetter.py
