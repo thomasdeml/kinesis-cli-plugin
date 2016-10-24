@@ -35,9 +35,9 @@ class PullCommand(BasicCommand):
         
         {'name': 'pull-delay', 
          'cli_type_name': 'integer', 
-         'default': '5',
-         'help_text': 'Specifies the delay in seconds before pulling the '
-                      'next batch of records. Defaults to 5 seconds.'},
+         'default': '5000',
+         'help_text': 'Specifies the delay in milliseconds before pulling the '
+                      'next batch of records. Defaults to 5000 milliseconds.'},
     ]
 
     UPDATE = False
@@ -117,7 +117,8 @@ class RecordsPuller(BaseThread):
                 logger.debug('Puller is leaving...')
                 break
             else:
-                self.stop_flag.wait(self.pull_delay)
+                #Event.wait expects wait time in seconds
+                self.stop_flag.wait(float(self.pull_delay/1000.0))
 
             logger.debug('Getting records with shard iterator [%s]' %
                          (self.next_shard_iterator))
