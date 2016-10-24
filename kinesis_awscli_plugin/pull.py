@@ -69,10 +69,10 @@ class PullCommand(BasicCommand):
         logger.debug(str(gsi_response))
         if gsi_response and gsi_response['ShardIterator']:
             queue = Queue.Queue(self.QUEUE_SIZE)
-            renderer = EventsRenderer(stop_flag, queue)
+            renderer = RecordRenderer(stop_flag, queue)
             renderer.start()
             threads.append(renderer)
-            puller = EventsPuller(
+            puller = RecordsPuller(
                 stop_flag, 
                 queue,
                 self.kinesis,
@@ -101,9 +101,9 @@ class PullCommand(BasicCommand):
         exit_checker.join()
 
 
-class EventsPuller(BaseThread):
+class RecordsPuller(BaseThread):
     def __init__(self, stop_flag, queue, kinesis_service, shard_iterator,  pull_delay):
-        super(EventsPuller, self).__init__(stop_flag)
+        super(RecordsPuller, self).__init__(stop_flag)
         self.queue = queue
         self.kinesis_service = kinesis_service
         self.next_shard_iterator = shard_iterator
@@ -130,25 +130,25 @@ class EventsPuller(BaseThread):
                     logger.debug('No records read')
                 else:
                     logger.debug('Adding records to the queue')
-                    self.queue.put(EventBatch(records))
+                    self.queue.put(RecordBatch(records))
                     
                 self.next_shard_iterator = gr_response['NextShardIterator']
             else:
                logger.debug('empty response')
 
 
-class EventsRenderer(BaseThread):
+class RecordRenderer(BaseThread):
     def __init__(self, stop_flag, queue):
-        super(EventsRenderer, self).__init__(stop_flag)
+        super(RecordRenderer, self).__init__(stop_flag)
         self.queue = queue
 
     def _run(self):
         while True:
             try:
-                event_batch = self.queue.get(False)
-                logger.debug('Rendering event batch. %d batches are remaining.' % self.queue.qsize())
+                record_batch = self.queue.get(False)
+                logger.debug('Rendering record batch. %d batches are remaining.' % self.queue.qsize())
                 stdout.flush()
-                for record in event_batch.records:
+                for record in record_batch.records:
                     revised_record = record.copy()
                     stdout.write(base64.b64decode(revised_record['Data']) + '\n')
                     stdout.flush()
@@ -161,6 +161,6 @@ class EventsRenderer(BaseThread):
                     self.stop_flag.wait(5)
 
 
-class EventBatch:
+class RecordBatch:
     def __init__(self, records):
         self.records = records
