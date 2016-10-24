@@ -17,7 +17,7 @@ import datetime
 
 from awscli.customizations.commands import BasicCommand
 from awscli.formatter import get_formatter
-#from kinesis_awscli_plugin.streammetricsgetter import ShardMetricsGetter
+from kinesis_awscli_plugin.kinesismetricsgetter import KinesisMetricsGetter
 from kinesis_awscli_plugin.timestringconverter import TimeStringConverter
 
 class GetStreamMetricsCommand(BasicCommand):
@@ -97,7 +97,7 @@ class GetStreamMetricsCommand(BasicCommand):
     def _run_main(self, args, parsed_globals):
       args = self.collect_args(args)
       self.validate_args(args)
-      shard_metrics_getter = StreamMetricsGetter( 
+      stream_metrics_getter = KinesisMetricsGetter( 
         cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals),
         kinesis_client = self.aws_generic_client('kinesis', parsed_globals),
         stream_name = args.stream_name,

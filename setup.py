@@ -5,7 +5,7 @@ setup(
     version = '0.1',
     packages = ['kinesis_awscli_plugin'],
     install_requires = [
-        'awscli',
+        'awscli>1.10',
     ],
     author = 'Thomas Deml',
     author_email = 'thomas.deml@gmail.com',

@@ -1,4 +1,4 @@
-class ShardMetrics(object):
+class KinesisMetrics(object):
 
   def __init__(self, shard_id, metric_values):
     self.metric_values = metric_values
@@ -20,7 +20,6 @@ class ShardMetrics(object):
 
   def min(self):
     return min(self.metric_values)
-
 
   def has_data(self):
     return self._has_data

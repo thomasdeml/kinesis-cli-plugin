@@ -1,6 +1,6 @@
-from kinesis_awscli_plugin.shardmetrics import ShardMetrics
+from kinesis_awscli_plugin.kinesismetrics import KinesisMetrics
 
-class ShardMetricsGetter(object):
+class KinesisMetricsGetter(object):
  
   def __init__(
     self,
