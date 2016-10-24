@@ -19,15 +19,26 @@ This Plugin adds three Kinesis commands to the AWS CLI
 
    **Example 1:** 
    
+   Simple shard metrics query using the defaults (average of IncomingRecords over the last 15 minutes). Output is always sorted by average in descending order.
+
    `aws kinesis get-shard-metrics --stream-name Test`
 
    **Example 2:** 
    
+   Shard metrics query using some another metric and statistic. Output is sorted by average of datapoints for the shards in descending order. 
+
    `aws kinesis get-shard-metrics --stream-name Test --metric-name WriteProvisionedThroughputExceeded --statistic Sum`
 
    **Example 3:** 
    
+   Use other metric name and different start and end time.
+
    `aws kinesis get-shard-metrics --stream-name Test --metric-name IncomingBytes --start-time 2016-10-10T10:10:00 --end-time 2016-10-10T11:10:00`
+ 
+   **Example 4:**
+   
+   Show only the average of the datapoints over the queried timeframe.
+   `aws kinesis get-shard-metrics --stream-name Test --metric-name IncomingBytes --statistic Sum --query "shard_metrics[*].{ShardId:ShardId,Average:Average}"`
 
 ### 2. Push support 
    By piping output to the push extension, data gets put into the specified Kinesis Stream. 
