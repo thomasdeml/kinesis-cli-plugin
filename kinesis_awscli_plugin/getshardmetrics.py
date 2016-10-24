@@ -100,7 +100,17 @@ class GetShardMetricsCommand(BasicCommand):
       shard_metrics = shard_metrics_getter.get()
  
       #self.print_shard_metrics(shard_metrics, args)
-      return {'foo': {'bar': 123, 'zoo': 456}}
+      ret_val = {'foo': {'bar': 123, 'zoo': 456}}
+      self._display_response('get-shard-metrics', ret_val, parsed_globals)
+      return 0
+
+    def _display_response(self, command_name, response,
+                          parsed_globals):
+        output = parsed_globals.output
+        if output is None:
+            output = self._session.get_config_variable('output')
+        formatter = get_formatter(output, parsed_globals)
+        formatter(command_name, response)
 
 
     def collect_args(self, args):
