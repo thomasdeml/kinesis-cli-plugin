@@ -76,7 +76,7 @@ class PushCommand(BasicCommand):
         threads = []
         queue = Queue.Queue(self.QUEUE_SIZE)
         stop_flag = Event()
-        reader = StandardInputRecordsReader(stop_flag, queue)
+        reader = StandardInputRecordsReader(stop_flag, queue, options.dry_run)
         reader.start()
         threads.append(reader)
         publisher = RecordPublisher(
