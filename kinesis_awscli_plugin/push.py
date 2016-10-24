@@ -116,6 +116,8 @@ class StandardInputRecordsReader(BaseThread):
             line = stdin.readline()
             #data = line.rstrip('\n')
             data = line
+            if len(data) > self.MAX_RECORD_SIZE/2: 
+              raise ValueError("Line is too long")
             if data:
                 record = {'data': data}
                 if self.dry_run:
@@ -160,8 +162,6 @@ class RecordPublisher(BaseThread):
 
     @ExponentialBackoff(stderr=True, logger=logger, exception=(ServerError))
     def _run(self):
-        m = hashlib.md5()
-
         data = ''
         last_record_put_time = datetime.now()
         while True:
@@ -172,13 +172,7 @@ class RecordPublisher(BaseThread):
                 if self.batch_enabled == False and len(data) > 0:
                     new_data = self._truncate_if_necessary(new_data, self.MAX_RECORD_SIZE)
                     new_data = new_data.rstrip('\n')
-                    if self.partition_key is None: 
-                       m = hashlib.md5()
-                       m.update(new_data)
-                       partition_key_to_use = m.hexdigest()
-                    else:
-                       partition_key_to_use = self.partition_key
-                    self._put_kinesis_record(partition_key_to_use, new_data)
+                    self._put_kinesis_record(self.get_partition_key(), new_data)
                     continue
                 logger.debug('New data: ' + new_data + '\n')
                 if self._does_new_data_fit(new_data, data, self.MAX_RECORD_SIZE):
@@ -186,14 +180,13 @@ class RecordPublisher(BaseThread):
                     data += new_data
                     if self._is_time_to_put(last_record_put_time, self.MAX_TIME_BETWEEN_PUTS):
                         self.sequence_number_for_ordering = \
-                            self._put_kinesis_record(self.partition_key, data)
+                            self._put_kinesis_record(self.get_partition_key(), data)
                         data = ''
                         last_record_put_time = datetime.now()
                 else:
                     self.sequence_number_for_ordering = \
-                        self._put_kinesis_record(self.partition_key, data)
-                    new_data = self._truncate_if_necessary(new_data, self.MAX_RECORD_SIZE)
-                    data = ''
+                        self._put_kinesis_record(self.get_partition_key(), data)
+                    data = self._truncate_if_necessary(new_data, self.MAX_RECORD_SIZE)
                     last_record_put_time = datetime.now()
             except Queue.Empty:
                 if self.stop_flag.is_set():
@@ -203,7 +196,15 @@ class RecordPublisher(BaseThread):
                     self.stop_flag.wait(5)
         # still need to put remaining records
         if len(data) > 0: 
-            self._put_kinesis_record(self.partition_key, data)
+            self._put_kinesis_record(self.get_partition_key(), data)
+
+    def get_partition_key(self):
+      if self.partition_key is None: 
+        m = hashlib.md5()
+        m.update(new_data)
+        return  m.hexdigest()
+      else:
+        return self.partition_key
 
     def _put_kinesis_record(self, partition_key, data):
         params = dict(StreamName=self.stream_name,
