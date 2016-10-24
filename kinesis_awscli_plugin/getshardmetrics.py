@@ -100,9 +100,8 @@ class GetShardMetricsCommand(BasicCommand):
       )
       shard_metrics = shard_metrics_getter.get()
  
-      #self.print_shard_metrics(shard_metrics, args)
-      ret_val = {'foo': {'bar': 123, 'zoo': 456}}
-      self._display_response('get-shard-metrics', ret_val, parsed_globals)
+      output = create_shard_metrics_output(shard_metrics, args)
+      self._display_response('get-shard-metrics', output, parsed_globals)
       return 0
 
     def _display_response(self, command_name, response,
@@ -162,7 +161,7 @@ class GetShardMetricsCommand(BasicCommand):
       return client
      
 
-    def print_shard_metrics(self, sorted_shard_array, args):
+    def create_shard_metrics_output(self, sorted_shard_array, args):
       output = {}
       
       output['description'] = 'Sorted average of "{0} ({1}) per second" between {2} and {3}'.format(
@@ -181,8 +180,4 @@ class GetShardMetricsCommand(BasicCommand):
         lambda _shard: {_shard.shard_id: {'average': round(_shard.avg()/60.0, 2), 'datapoints': _shard.metric_values}},
         sorted_shard_array
       )
-      print json.dumps(
-        output,
-        indent = 1, 
-        separators=(',', ': ')
-      )
+      return output
