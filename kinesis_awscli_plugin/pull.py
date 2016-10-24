@@ -117,7 +117,7 @@ class RecordsPuller(BaseThread):
                 logger.debug('Puller is leaving...')
                 break
             else:
-                #Event.wait expects wait time in milliseconds
+                #Event.wait expects wait time in seconds. Command-line uses milliseconds
                 self.stop_flag.wait(float(self.pull_delay/1000.0))
 
             logger.debug('Getting records with shard iterator [%s]' %

@@ -200,7 +200,8 @@ class RecordPublisher(BaseThread):
                      logger.debug('Publisher is leaving...')
                      break
                 else:
-                    self.stop_flag.wait(5)
+                    # Event.wait expects wait time in seconds. Command-line uses milliseconds.
+                    self.stop_flag.wait(float(self.push_delay/1000.0))
         # still need to put remaining records
         if len(data) > 0: 
             self._put_kinesis_record(self.get_partition_key(data), data)
