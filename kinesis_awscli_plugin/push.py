@@ -106,17 +106,19 @@ class PushCommand(BasicCommand):
 
 class StandardInputRecordsReader(BaseThread):
 
+    MAX_LINE_LENGTH = 20 * 1024
     def __init__(self, stop_flag, queue, dry_run=False):
         super(StandardInputRecordsReader, self).__init__(stop_flag)
         self.queue = queue
         self.dry_run = dry_run
 
     def _run(self):
+
         while True:
             line = stdin.readline()
             #data = line.rstrip('\n')
             data = line
-            if len(data) > self.MAX_RECORD_SIZE/2: 
+            if len(data) > self.MAX_LINE_LENGTH: 
               raise ValueError("Line is too long")
             if data:
                 record = {'data': data}
