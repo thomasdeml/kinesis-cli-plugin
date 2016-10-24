@@ -177,7 +177,7 @@ class GetShardMetricsCommand(BasicCommand):
       output['statistic'] = args.statistic 
  
       output['shard_metrics'] = map(
-        lambda _shard: {_shard.shard_id: {'average': round(_shard.avg()/60.0, 2), 'datapoints': _shard.metric_values}},
+        lambda _shard: {'ShardId': _shard.shard_id, 'Average': round(_shard.avg()/60.0, 2), 'Datapoints': _shard.metric_values},
         sorted_shard_array
       )
       return output
