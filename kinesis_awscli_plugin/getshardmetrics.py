@@ -100,7 +100,7 @@ class GetShardMetricsCommand(BasicCommand):
       )
       shard_metrics = shard_metrics_getter.get()
  
-      output = create_shard_metrics_output(shard_metrics, args)
+      output = self.create_shard_metrics_output(shard_metrics, args)
       self._display_response('get-shard-metrics', output, parsed_globals)
       return 0
 
