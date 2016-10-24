@@ -24,9 +24,8 @@ from six.moves import configparser
 from sys import stdout
 from awscli.errorhandler import ServerError
 
-logging.basicConfig(filename='debug.log',level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='example.log',level=logging.DEBUG)
+
 class PushCommand(BasicCommand):
     NAME = 'push'
     DESCRIPTION = ('This command pushes records to a Kinesis stream.  '
@@ -49,7 +48,13 @@ class PushCommand(BasicCommand):
          'cli_type_name': 'integer',
          'default': DEFAULT_PUSH_DELAY,
          'help_text': 'Specifies the delay in milliseconds between publishing '
-                      'two batches of streams. Defaults to 1000 ms.'},
+                      'two batches of streams. Defaults to 5000 ms. Records also '
+                      'get put if the maximum payload of 50kB is reached.},
+
+        {'name': 'enable-batch', 
+         'action': 'store_false',
+         'help_text': 'Batches records up to 50k payload. Records also get put if push delay expires. '
+                      'The default is True.' },
 
         {'name': 'dry-run', 
          'action': 'store_true',
@@ -85,7 +90,7 @@ class PushCommand(BasicCommand):
             self.kinesis, 
             options.stream_name, 
             options.partition_key,
-            True, # enables batching
+            options.enable_batch,
             int(options.push_delay))
         publisher.start()
         threads.append(publisher)
