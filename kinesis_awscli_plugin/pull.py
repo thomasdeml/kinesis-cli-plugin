@@ -42,7 +42,7 @@ class PullCommand(BasicCommand):
 
     UPDATE = False
 
-    QUEUE_SIZE = 100
+    QUEUE_SIZE = 10
 
     def _run_main(self, args, parsed_globals):
         # Initialize services
