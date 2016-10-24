@@ -46,7 +46,7 @@ class KinesisMetricsGetter(object):
       # only append if we got data:
       if len(datapoints) > 0: 
         shard_metrics_array.append(
-          ShardMetrics(
+          KinesisMetrics(
             shard_id, 
             datapoints, 
           )

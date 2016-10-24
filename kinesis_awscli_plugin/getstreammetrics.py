@@ -141,7 +141,7 @@ class GetStreamMetricsCommand(BasicCommand):
 
     def validate_args(self, args):
       if args.metric_names not in self.STREAM_METRIC_NAMES:
-        raise ValueError('Metric name must be one of the following: {0}'.format(str(self.ALLOWED_METRIC_NAMES)))
+        raise ValueError('Metric name must be one of the following: {0}'.format(str(self.STREAM_METRIC_NAMES)))
      
       if args.statistic not in self.ALLOWED_STATISTICS: 
         raise ValueError('Statistic must be one of the following: {0}'.format(str(self.ALLOWED_STATISTICS)))
