@@ -51,10 +51,9 @@ class PushCommand(BasicCommand):
                       'two batches of streams. Defaults to 5000 ms. Records also '
                       'get put if the maximum payload of 50kB is reached.},
 
-        {'name': 'enable-batch', 
-         'action': 'store_false',
-         'help_text': 'Batches records up to 50k payload. Records also get put if push delay expires. '
-                      'The default is True.' },
+        {'name': 'disable-batch', 
+         'action': 'store_true',
+         'help_text': 'Batches are batched up to 50k payload. Specify --_-batch to disable batching.'},
 
         {'name': 'dry-run', 
          'action': 'store_true',
@@ -90,7 +89,7 @@ class PushCommand(BasicCommand):
             self.kinesis, 
             options.stream_name, 
             options.partition_key,
-            options.enable_batch,
+            options.disable_batch,
             int(options.push_delay))
         publisher.start()
         threads.append(publisher)
@@ -154,7 +153,7 @@ class RecordPublisher(BaseThread):
       kinesis_service, 
       stream_name, 
       partition_key, 
-      batch_enabled, 
+      batch_disabled, 
       push_delay):
 
         super(RecordPublisher, self).__init__(stop_flag)
@@ -162,7 +161,7 @@ class RecordPublisher(BaseThread):
         self.kinesis_service = kinesis_service
         self.stream_name = stream_name
         self.partition_key = partition_key
-        self.batch_enabled = batch_enabled
+        self.batch_disabled = batch_disabled
         self.push_delay = push_delay
         self.sequence_number_for_ordering = None
 
@@ -177,7 +176,7 @@ class RecordPublisher(BaseThread):
                 queue_entry  = self.queue.get(False) 
                 new_data = queue_entry['data']
                 # if batching is turned off we immediately put the data
-                if self.batch_enabled == False and len(data) > 0:
+                if self.batch_disabled and len(data) > 0:
                     new_data = self._truncate_if_necessary(new_data, self.MAX_RECORD_SIZE)
                     new_data = new_data.rstrip('\n')
                     self._put_kinesis_record(self.get_partition_key(new_data), new_data)
