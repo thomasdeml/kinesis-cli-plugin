@@ -49,7 +49,7 @@ class PushCommand(BasicCommand):
          'default': DEFAULT_PUSH_DELAY,
          'help_text': 'Specifies the delay in milliseconds between publishing '
                       'two batches of streams. Defaults to 5000 ms. Records also '
-                      'get put if the maximum payload of 50kB is reached.},
+                      'get put if the maximum payload of 50kB is reached.'},
 
         {'name': 'disable-batch', 
          'action': 'store_true',
