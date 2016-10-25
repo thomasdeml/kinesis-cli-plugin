@@ -49,6 +49,8 @@ This Plugin adds three Kinesis commands to the AWS CLI
    Use other metric name and different start and end time. Time needs to be in UTC.
 
    `aws kinesis get-shard-metrics --stream-name Test --metric-name IncomingBytes --start-time 2016-10-10T10:10:00Z --end-time 2016-10-10T11:10:00Z`
+   
+   if the Python dateparser module is installed (`pip install dateparser`) you can also use relative dates like `--start-time "20 minutes ago"`
  
    **Example 4:**
    
