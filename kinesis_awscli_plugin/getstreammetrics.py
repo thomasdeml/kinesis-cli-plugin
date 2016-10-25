@@ -17,7 +17,7 @@ import datetime
 
 from awscli.customizations.commands import BasicCommand
 from awscli.formatter import get_formatter
-from kinesis_awscli_plugin.kinesismetricsgetter import KinesisMetricsGetter
+from kinesis_awscli_plugin.streammetricsgetter import StreamMetricsGetter
 from kinesis_awscli_plugin.timestringconverter import TimeStringConverter
 
 class GetStreamMetricsCommand(BasicCommand):
@@ -98,18 +98,16 @@ class GetStreamMetricsCommand(BasicCommand):
       args = self.collect_args(args)
       self.validate_args(args)
       stream_metrics_array = []
-      for _metric_name in args.metric_names:
-        stream_metrics_getter = KinesisMetricsGetter( 
-	  cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals),
-	  kinesis_client = self.aws_generic_client('kinesis', parsed_globals),
-	  stream_name = args.stream_name,
-	  metric_name = _metric_name,
-	  start_time = args.start_time,
-	  end_time = args.end_time,
-	  statistic = args.statistic,
-        )
-        stream_metrics = stream_metrics_getter.get()
-        stream_metrics_array.append(stream_metrics)
+      stream_metrics_getter = StreamMetricsGetter( 
+        cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals),
+        kinesis_client = self.aws_generic_client('kinesis', parsed_globals),
+	stream_name = args.stream_name,
+	start_time = args.start_time,
+	end_time = args.end_time,
+	statistic = args.statistic,
+      )
+      stream_metrics = stream_metrics_getter.get(self.metric_names)
+      stream_metrics_array.append(stream_metrics)
       output = self.create_stream_metrics_output(stream_metrics_array, args)
       self._display_response('get-stream-metrics', output, parsed_globals)
       return 0
