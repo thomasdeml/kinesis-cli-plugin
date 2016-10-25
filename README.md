@@ -6,11 +6,18 @@ This Plugin adds three Kinesis commands to the AWS CLI
 ### Pip Install 
    Execute the following command To install the Kinesis AWS CLI Plugin under Python site-packages:
 
+   `sudo pip install -U git+https://github.com/thomasdeml/kinesis-cli-plugin.git`
+
+   On a Mac you might have to install the plugin like this:
+
    `sudo pip install -U git+https://github.com/thomasdeml/kinesis-cli-plugin.git --ignore-installed six`
+
 ### Plugin Registration
    Execute the following command to install the plugin in your ~/.aws/config file
 
    `aws configure set plugins.kinesis kinesis_awscli_plugin`
+  
+   This will add the plugin to the ~/.aws/config file.
 
 # Usage
 
