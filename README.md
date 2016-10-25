@@ -14,8 +14,23 @@ This Plugin adds three Kinesis commands to the AWS CLI
 
 # Usage
 
-### 1. Shard-level metrics 
-   Displays shard-level metrics for the specified stream. By default the datapoints of the last 15 minutes get fetched and averaged. The metric name used by default is 'IncomingRecords'.   
+### 1. Stream metrics
+   Displays all stream-level metrics for the specified stream. By default datapoints of the last 10 minutes get fetched.  
+
+   **Example 1:** 
+   
+   Fetches all metrics for the specified stream: 
+
+   `aws kinesis get-stream-metrics --stream-name Test`
+  
+   **Example 2:** 
+
+   Fetches all metrics for the specified stream and displays them in readable format: 
+
+   `aws kinesis get-stream-metrics --stream-name Test --output table`
+
+### 2. Shard-level metrics 
+   Displays shard-level metrics for the specified stream. By default the datapoints of the last 10 minutes get fetched and averaged. The metric name used by default is 'IncomingRecords'.   
 
    **Example 1:** 
    
@@ -41,7 +56,7 @@ This Plugin adds three Kinesis commands to the AWS CLI
 
    `aws kinesis get-shard-metrics --stream-name Test --metric-name IncomingBytes --statistic Sum --query "shard_metrics[*].{ShardId:ShardId,Average:Average}" --output table`
 
-### 2. Push support 
+### 3. Push support 
    By piping output to the push extension, data gets put into the specified Kinesis Stream. 
 
    **Example 1:** 
@@ -52,7 +67,7 @@ This Plugin adds three Kinesis commands to the AWS CLI
 
    `cat /var/log/* | aws kinesis push --stream-name Test --partition-key $(hostname)`
 
-### 3. Pull support
+### 4. Pull support
    The pull command calls GetRecords in a loop for the specified stream and shard.
 
    **Example 1:** 
