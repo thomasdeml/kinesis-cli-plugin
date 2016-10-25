@@ -15,7 +15,7 @@ This Plugin adds three Kinesis commands to the AWS CLI
 # Usage
 
 ### 1. Stream metrics
-   Displays all stream-level metrics for the specified stream. By default datapoints of the last 10 minutes get fetched.  
+   Displays stream-level metrics for the specified stream. By default datapoints of the last 10 minutes get fetched.  
 
    **Example 1:** 
    
@@ -61,9 +61,13 @@ This Plugin adds three Kinesis commands to the AWS CLI
 
    **Example 1:** 
    
+   Puts every line of logfile into a record and calls PutRecord. The partition key is the MD5 hash of the payload. 
+
    `tail -f logfile | aws kinesis push --stream-name Test --disable-batch`
   
    **Example 2:** 
+
+   Puts the content of every log file in the /var/log directory into Kinesis. Lines are batched into a single record until the record reaches 50kB. Partition key is the current host name.  
 
    `cat /var/log/* | aws kinesis push --stream-name Test --partition-key $(hostname)`
 
@@ -72,8 +76,12 @@ This Plugin adds three Kinesis commands to the AWS CLI
 
    **Example 1:** 
 
+   This command retrieves data from shard 0 of stream Test. GetRecords is called every 5000 ms (default). 
+
    `aws kinesis pull --stream-name Test --shard-id shardId-000000000001`
 
    **Example 2:**
 
+   This command retrieves data from shard 0 of stream Test. It calls GetRecords every 500ms. 
+    
    `aws kinesis pull --stream-name Test --shard-id shardId-00000000000 --pull-delay 500`
