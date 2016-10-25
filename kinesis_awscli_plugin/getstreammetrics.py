@@ -119,6 +119,8 @@ class GetStreamMetricsCommand(BasicCommand):
 
       if args.metric_names is None: 
          args.metric_names = self.STREAM_METRIC_NAMES
+      else:
+         args.metric_names = args.metric_names.split(',')
 
       if args.statistic is None:
          args.statistic = 'Average'
