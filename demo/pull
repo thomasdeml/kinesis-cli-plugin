@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "Executing 'aws kinesis pull --stream-name MetricsTest --stream-name MetricsTest --shard-id shardId-000000000000'"
+sleep 1 > /dev/null
+aws kinesis pull --stream-name MetricsTest --shard-id shardId-000000000000 --pull-delay 500
+

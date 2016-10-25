@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "Executing 'cat var/log/* | aws kinesis push --stream-name MetricsTest'"
+sleep 3 > /dev/null
+cat /var/log/* | aws kinesis push --stream-name MetricsTest
+
