@@ -18,7 +18,7 @@ import datetime
 from awscli.customizations.commands import BasicCommand
 from awscli.formatter import get_formatter
 from kinesis_awscli_plugin.streammetricsgetter import StreamMetricsGetter
-from kinesis_awscli_plugin.timestringconverter import TimeStringConverter
+from kinesis_awscli_plugin.timeutils import TimeUtils
 
 class GetStreamMetricsCommand(BasicCommand):
 
@@ -79,7 +79,7 @@ class GetStreamMetricsCommand(BasicCommand):
           'required': False, 
           'help_text': 'The start time for the metrics to query for in UTC. Time format is ISO8601. Example: "{0}". '\
                        'Default is now minus {1} minutes.'.format(
-                          TimeStringConverter.iso8601(datetime.datetime.utcnow() - datetime.timedelta(minutes=DEFAULT_DURATION)), 
+                          TimeUtils.iso8601(datetime.datetime.utcnow() - datetime.timedelta(minutes=DEFAULT_DURATION)), 
                           DEFAULT_DURATION
                        )
         },
@@ -88,7 +88,7 @@ class GetStreamMetricsCommand(BasicCommand):
           'required': False, 
           'help_text': 'The end time for the metrics to query for in UTC. Time format is ISO8601. Example: "{0}". '\
                        'Default is "now".'.format(
-                          TimeStringConverter.iso8601(datetime.datetime.utcnow())
+                          TimeUtils.iso8601(datetime.datetime.utcnow())
                        )
         },
     ]
@@ -115,7 +115,7 @@ class GetStreamMetricsCommand(BasicCommand):
       if args.start_time is None:
          args.start_time = datetime.datetime.utcnow() - datetime.timedelta(minutes=self.DEFAULT_DURATION)
       else: 
-         args.start_time = datetime.datetime.strptime( args.start_time, "%Y-%m-%dT%H:%M:%S" )
+         args.start_time = TimeUtils.to_datetime(args.start_time) 
 
       if args.metric_names is None: 
          args.metric_names = self.STREAM_METRIC_NAMES
@@ -128,7 +128,7 @@ class GetStreamMetricsCommand(BasicCommand):
       if args.end_time is None:
          args.end_time = datetime.datetime.utcnow()
       else:
-         args.end_time = datetime.datetime.strptime( args.end_time, "%Y-%m-%dT%H:%M:%S" )
+         args.end_time = TimeUtils.to_datetime(args.end_time)
       return args
 
     def validate_args(self, args):
@@ -168,12 +168,12 @@ class GetStreamMetricsCommand(BasicCommand):
       output['description'] = 'Stream metrics for stream "{1}" between {2} and {3}'.format(
         args.statistic, 
         args.stream_name,
-        TimeStringConverter.iso8601(args.start_time),
-        TimeStringConverter.iso8601(args.end_time),
+        TimeUtils.iso8601(args.start_time),
+        TimeUtils.iso8601(args.end_time),
       )
       # args not json serializable. Need to do by hand
-      output['start_time'] = TimeStringConverter.iso8601(args.start_time)
-      output['end_time'] = TimeStringConverter.iso8601(args.end_time)
+      output['start_time'] = TimeUtils.iso8601(args.start_time)
+      output['end_time'] = TimeUtils.iso8601(args.end_time)
       output['metric_names'] = args.metric_names
       output['statistic'] = args.statistic 
  
