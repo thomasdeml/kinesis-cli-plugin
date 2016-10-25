@@ -2,23 +2,14 @@ import tempfile
 import datetime
 from mock import Mock 
 
-from kinesis_awscli_plugin.shardmetricsgetter import ShardMetricsGetter
+from kinesis_awscli_plugin.streammetricsgetter import StreamMetricsGetter
 from kinesis_awscli_plugin.timeutils import TimeUtils
 from mock import MagicMock
 from argparse import Namespace
 
-class TestShardMetricsGetter:
+class TestStreamMetricsGetter:
   def setUp(self):
     self.kinesis_mock = MagicMock()
-    self.describe_stream_response = {
-      'StreamDescription': {
-        'Shards': [
-          {'ShardId': '1'}, 
-          {'ShardId': '2'}
-         ]
-       }
-    }
-    self.kinesis_mock.describe_stream = MagicMock(return_value = self.describe_stream_response)
 
     self.cloudwatch_mock = MagicMock()
     self.get_metric_statistics_response = {
@@ -42,8 +33,8 @@ class TestShardMetricsGetter:
     }
     self.cloudwatch_mock.get_metric_statistics = MagicMock(return_value = self.get_metric_statistics_response)
 
-  def mock_shard_metrics_getter(self):
-    return ShardMetricsGetter(
+  def mock_stream_metrics_getter(self):
+    return StreamMetricsGetter(
       self.cloudwatch_mock,
       self.kinesis_mock,
       'test',
@@ -52,12 +43,12 @@ class TestShardMetricsGetter:
     )
       
   def test_get(self):
-    metrics_getter = self.mock_shard_metrics_getter()
-    metrics = metrics_getter.get()  
+    metrics_getter = self.mock_stream_metrics_getter()
+    metrics = metrics_getter.get(['metric1', 'metric2'])  
     assert len(metrics) == 2
     assert metrics[0].avg() == 6.0
 
   def test_get_shard_datapoints(self):
-    metrics_getter = self.mock_shard_metrics_getter()
-    values = metrics_getter.get_shard_datapoints('abc')
+    metrics_getter = self.mock_stream_metrics_getter()
+    values = metrics_getter.get_metric_datapoints('metric1')
     assert len(values) == 3
