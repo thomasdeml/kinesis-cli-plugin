@@ -106,9 +106,8 @@ class GetStreamMetricsCommand(BasicCommand):
 	end_time = args.end_time,
 	statistic = args.statistic,
       )
-      stream_metrics = stream_metrics_getter.get(self.metric_names)
-      stream_metrics_array.append(stream_metrics)
-      output = self.create_stream_metrics_output(stream_metrics_array, args)
+      stream_metrics = stream_metrics_getter.get(args.metric_names)
+      output = self.create_stream_metrics_output(stream_metrics, args)
       self._display_response('get-stream-metrics', output, parsed_globals)
       return 0
 
@@ -164,7 +163,7 @@ class GetStreamMetricsCommand(BasicCommand):
     def create_stream_metrics_output(self, metrics_array, args):
       output = {}
       
-      output['description'] = 'Stream metrics average of "{0}" for stream "{0}" between {1} and {2}'.format(
+      output['description'] = 'Stream metrics for stream "{1}" between {2} and {3}'.format(
         args.statistic, 
         args.stream_name,
         TimeStringConverter.iso8601(args.start_time),
@@ -177,7 +176,7 @@ class GetStreamMetricsCommand(BasicCommand):
       output['statistic'] = args.statistic 
  
       output['metrics'] = map(
-        lambda _kinesis_metrics: {'Metric': _kinesis_metrics.metric_name, 'Average': round(_kinesis_metrics.avg()/60.0, 2), 'Datapoints': _kinesis_metrics.metric_values},
+        lambda _kinesis_metrics: {'Metric': _kinesis_metrics.metric_id, 'Datapoints': _kinesis_metrics.datapoints}, 
         metrics_array
       )
       return output

@@ -24,15 +24,13 @@ class StreamMetricsGetter(object):
   def get(self, metric_list):
     metrics_array = []
     for metric_name in metric_list:
-      datapoints = self.get_metric_datapoints(metric_name)
-      # only append if we got data:
-      if len(datapoints) > 0: 
-        metrics_array.append(
-          KinesisMetrics(
-            metric, 
-            datapoints, 
-          )
+      metrics_array.append(
+        KinesisMetrics(
+          metric_name, 
+          self.get_metric_datapoints(metric_name), 
+          self.statistic,
         )
+      )
     return metrics_array
 
   def get_metric_datapoints(self, metric_name):
@@ -45,12 +43,6 @@ class StreamMetricsGetter(object):
       Period = self.period, 
       Dimensions = [{'Name': 'StreamName', 'Value': self.stream_name}]
     )
-    return self.metric_values(
-      response['Datapoints'],
-      self.statistic
-    )
- 
-  def metric_values(self, datapoints, statistic):
-    return  map(lambda x: float(x[statistic]), datapoints)
+    return response['Datapoints']
 
 

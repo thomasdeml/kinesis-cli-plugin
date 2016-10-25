@@ -164,7 +164,7 @@ class GetShardMetricsCommand(BasicCommand):
     def create_shard_metrics_output(self, sorted_shard_array, args):
       output = {}
       
-      output['description'] = 'Sorted average of "{0} ({1}) per second" between {2} and {3}'.format(
+      output['description'] = 'Sorted average of "{0} ({1}) per minute" between {2} and {3}'.format(
         args.metric_name, 
         args.statistic,
         TimeStringConverter.iso8601(args.start_time),
@@ -177,7 +177,7 @@ class GetShardMetricsCommand(BasicCommand):
       output['statistic'] = args.statistic 
  
       output['shard_metrics'] = map(
-        lambda _shard: {'ShardId': _shard.shard_id, 'Average': round(_shard.avg()/60.0, 2), 'Datapoints': _shard.metric_values},
+        lambda _shard: {'ShardId': _shard.metric_id, 'Average': round(_shard.avg(), 2), 'Datapoints': _shard.datapoints},
         sorted_shard_array
       )
       return output

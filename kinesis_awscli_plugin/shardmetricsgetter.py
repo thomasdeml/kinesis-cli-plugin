@@ -42,15 +42,13 @@ class ShardMetricsGetter(object):
   def get_shard_metrics(self, shard_ids):
     shard_metrics_array = []
     for shard_id in shard_ids:
-      datapoints = self.get_shard_datapoints(shard_id)
-      # only append if we got data:
-      if len(datapoints) > 0: 
-        shard_metrics_array.append(
-          KinesisMetrics(
-            shard_id, 
-            datapoints, 
-          )
+      shard_metrics_array.append(
+        KinesisMetrics(
+          shard_id, 
+          self.get_shard_datapoints(shard_id),
+          self.statistic
         )
+      )
     return shard_metrics_array
 
 
@@ -64,10 +62,7 @@ class ShardMetricsGetter(object):
       Period = self.period, 
       Dimensions = self.get_dimensions(shard_id),
     )
-    return self.metric_values(
-      response['Datapoints'],
-      self.statistic
-    )
+    return response['Datapoints']
  
   def sort(self, shard_metrics_array):
     return  sorted(
@@ -87,8 +82,3 @@ class ShardMetricsGetter(object):
          'Value': shard_id
        },
     ]
-
-  def metric_values(self, datapoints, statistic):
-    return  map(lambda x: float(x[statistic]), datapoints)
-
-
