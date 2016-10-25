@@ -46,9 +46,9 @@ This Plugin adds three Kinesis commands to the AWS CLI
 
    **Example 3:** 
    
-   Use other metric name and different start and end time.
+   Use other metric name and different start and end time. Time needs to be in UTC.
 
-   `aws kinesis get-shard-metrics --stream-name Test --metric-name IncomingBytes --start-time 2016-10-10T10:10:00 --end-time 2016-10-10T11:10:00`
+   `aws kinesis get-shard-metrics --stream-name Test --metric-name IncomingBytes --start-time 2016-10-10T10:10:00Z --end-time 2016-10-10T11:10:00Z`
  
    **Example 4:**
    
