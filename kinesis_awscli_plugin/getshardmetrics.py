@@ -58,19 +58,20 @@ class GetShardMetricsCommand(BasicCommand):
           'name': 'metric-name', 
           'required': False, 
           'help_text': 'The name of the metric to query for. Default is "IncomingRecords". Allowed '\
-            'are {0}:'.format(str(ALLOWED_METRIC_NAMES))
+            'are {0}'.format(str(ALLOWED_METRIC_NAMES))
         },
         {
           'name': 'statistic', 
           'required': False, 
-          'help_text': 'The name of the statistic to query for. Default is "Average".'\
-            'Allowed are: {0}'.format(str(ALLOWED_STATISTICS))
+          'help_text': 'The name of the statistic to query for. Default is "Average". '\
+            'Allowed are {0}'.format(str(ALLOWED_STATISTICS))
         },
         {
           'name': 'start-time', 
           'required': False, 
           'help_text': 'The start time for the metrics to query for in UTC. Time format is ISO8601. Example: "{0}". '\
-                       'Default is now minus {1} minutes.'.format(
+                       'Default is now minus {1} minutes. Relative times like "30 minutes ago" can be used if the '\
+                       'Python module dateparser is installed. '.format(
                           TimeUtils.iso8601(datetime.datetime.utcnow() - datetime.timedelta(minutes=DEFAULT_DURATION)), 
                           DEFAULT_DURATION
                        )
@@ -79,7 +80,8 @@ class GetShardMetricsCommand(BasicCommand):
           'name': 'end-time', 
           'required': False, 
           'help_text': 'The end time for the metrics to query for in UTC. Time format is ISO8601. Example: "{0}". '\
-                       'Default is "now".'.format(
+                       'Default is "now". Relative times like "30 minutes ago" can be used if the '\
+                       'Python module dateparser is installed. '.format(
                           TimeUtils.iso8601(datetime.datetime.utcnow())
                        )
         },
