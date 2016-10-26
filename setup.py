@@ -4,6 +4,8 @@ setup(
     name = 'kinesis_awscli_plugin',
     version = '0.1',
     packages = ['kinesis_awscli_plugin'],
+    package_data={'kinesis_awscli_plugin': ['*.rst', 'kinesis_awscli_plugin/examples/kinesis/*.rst']},
+    include_package_data = True,
 #    install_requires = [
 #        'awscli>1.10',
 #    ],
