@@ -94,3 +94,46 @@ This Plugin adds three Kinesis commands to the AWS CLI
    This command retrieves data from shard 0 of stream Test. It calls GetRecords every 500ms. 
     
    `aws kinesis pull --stream-name Test --shard-id shardId-00000000000 --pull-delay 500`
+
+## Documentation
+
+NAME
+       get-shard-metrics -
+
+DESCRIPTION
+       Get Shard Metrics for a Kinesis Stream. The metrics
+              are  sorted using the average over the specified duration as the
+              sort key.
+
+SYNOPSIS
+            get-shard-metrics
+          --stream-name <value>
+          [--metric-name <value>]
+          [--statistic <value>]
+          [--start-time <value>]
+          [--end-time <value>]
+
+OPTIONS
+       --stream-name (string) The name of the stream
+
+       --metric-name (string) The name of the metric to query for. Default  is
+       "IncomingRecords".  Allowed  are  ['IncomingBytes',  'IncomingRecords',
+       'WriteProvisionedThroughputExceeded',    'OutgoingBytes',     'Outgoin-
+       gRecords',  'ReadProvisionedThroughputExceeded',  'IteratorAgeMillisec-
+       onds']:
+
+       --statistic (string) The name of the statistic to query for. Default is
+       "Average".Allowed  are:  ['Average',  'Sum',  'SampleCount', 'Minimum',
+       'Maximum']
+
+       --start-time (string) The start time for the metrics to  query  for  in
+       UTC. Time format is ISO8601. Example: "2016-10-26T03:18:00". Default is
+       now minus 10 minutes.
+
+       --end-time (string) The end time for the metrics to query for  in  UTC.
+       Time  format  is  ISO8601.  Example:  "2016-10-26T03:28:00". Default is
+       "now".
+
+
+
+                                                           GET-SHARD-METRICS()
