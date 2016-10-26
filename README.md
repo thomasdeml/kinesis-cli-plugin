@@ -97,6 +97,7 @@ This Plugin adds three Kinesis commands to the AWS CLI
 
 ## Documentation
 
+```
 NAME
        get-shard-metrics -
 
@@ -133,7 +134,7 @@ OPTIONS
        --end-time (string) The end time for the metrics to query for  in  UTC.
        Time  format  is  ISO8601.  Example:  "2016-10-26T03:28:00". Default is
        "now".
-
+```
 
 
                                                            GET-SHARD-METRICS()
