@@ -1,0 +1,3 @@
+# the following line makes sure the examples get pulled in by setuptools
+# include_package_data = True is also needed in setup.py for MANIFEST.in to work
+include kinesis_awscli_plugin/examples/kinesis/*.rst

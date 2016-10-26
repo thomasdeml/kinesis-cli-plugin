@@ -19,10 +19,13 @@ from awscli.customizations.commands import BasicCommand
 from awscli.formatter import get_formatter
 from kinesis_awscli_plugin.shardmetricsgetter import ShardMetricsGetter
 from kinesis_awscli_plugin.timeutils import TimeUtils
+from kinesis_awscli_plugin.utils import example_text
 
 class GetShardMetricsCommand(BasicCommand):
 
     NAME = 'get-shard-metrics'
+
+    EXAMPLES = example_text(__file__, NAME + '.rst')
 
     DESCRIPTION = """Get Shard Metrics for a Kinesis Stream. The metrics 
       are sorted using the average over the specified duration as the 

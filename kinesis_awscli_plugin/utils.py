@@ -16,35 +16,12 @@ from sys import stdin, stderr, stdout, exit
 from datetime import datetime
 import time
 import signal
+import os
 from dateutil.tz import *
-
-ISO8601_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
-
-
-def epoch(dt, tzinfo=None):
-    delta = (dt - datetime(1970, 1, 1, tzinfo=tzinfo))
-    return delta.days*24*3600*1000 + delta.seconds*1000 +\
-        delta.microseconds//1000
-
-
-def utc_epoch(utc_dt):
-    return epoch(utc_dt, tzutc())
-
-
-def iso8601_to_epoch(utc_dt_str):
-    dt = datetime.strptime(utc_dt_str, ISO8601_FORMAT)
-    dt = dt.replace(tzinfo=tzutc())
-    return utc_epoch(dt)
-
-
-def get_current_millis():
-    return int(time.time() * 1000)
-
 
 def get_current_time_str():
     fmt = '%Y-%m-%d %H:%M:%S'
     return datetime.fromtimestamp(time.time()).strftime(fmt)
-
 
 def log_to_stdout(line):
     stdout.write(get_current_time_str() + ' -- ' + line)
@@ -55,18 +32,6 @@ def log_to_stderr(line):
     stderr.write(get_current_time_str() + ' -- ' + line)
     stderr.flush()
 
-
-def endpoint_config(global_args):
-    endpoint_args = {
-       'region_name': None,
-       'endpoint_url': None
-    }
-    if 'region' in global_args:
-        endpoint_args['region_name'] = global_args.region
-    if 'endpoint_url' in global_args:
-        endpoint_args['endpoint_url'] = global_args.endpoint_url
-    return endpoint_args   
-
 def ctrl_c_handler(signum, frame):
   print("\nYou hit Ctrl+C.\nExiting ")
   exit()
@@ -74,3 +39,7 @@ def ctrl_c_handler(signum, frame):
 def register_ctrl_c_handler():
   signal.signal(signal.SIGINT, ctrl_c_handler)
 
+def example_text(module_path, example_file):
+  module_path = os.path.dirname(os.path.abspath(module_path))
+  example_file_path = os.path.join(module_path, 'examples/kinesis/' + example_file)
+  return  open(example_file_path, 'r').read()

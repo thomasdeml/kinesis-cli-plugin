@@ -19,10 +19,13 @@ from awscli.customizations.commands import BasicCommand
 from awscli.formatter import get_formatter
 from kinesis_awscli_plugin.streammetricsgetter import StreamMetricsGetter
 from kinesis_awscli_plugin.timeutils import TimeUtils
+from kinesis_awscli_plugin.utils import example_text
 
 class GetStreamMetricsCommand(BasicCommand):
 
     NAME = 'get-stream-metrics'
+
+    EXAMPLES = example_text(__file__, NAME + '.rst')
 
     DESCRIPTION = """The command gets Stream Metrics for the specified Kinesis Stream."""
 

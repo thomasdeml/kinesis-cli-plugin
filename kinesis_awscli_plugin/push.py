@@ -17,7 +17,7 @@ from awscli.customizations.commands import BasicCommand
 from kinesis_awscli_plugin.threads import BaseThread, ExitChecker
 from kinesis_awscli_plugin.retry import ExponentialBackoff
 from kinesis_awscli_plugin.utils \
-     import log_to_stdout,log_to_stderr, endpoint_config, register_ctrl_c_handler
+     import log_to_stdout,log_to_stderr, register_ctrl_c_handler, example_text
 import botocore
 import botocore.exceptions
 from six.moves import configparser
@@ -28,6 +28,9 @@ logger = logging.getLogger(__name__)
 
 class PushCommand(BasicCommand):
     NAME = 'push'
+
+    EXAMPLES = example_text(__file__, NAME + '.rst')
+
     DESCRIPTION = ('This command pushes records to a Kinesis stream.  '
                    'Standard input is read line by line and sent as record. '
                    'A partition key has to be specified as well.')

@@ -14,11 +14,15 @@ from awscli.customizations.commands import BasicCommand
 #from awscli.customizations.kinesis import utils
 from kinesis_awscli_plugin.retry import ExponentialBackoff
 from kinesis_awscli_plugin.threads import BaseThread, ExitChecker
+from kinesis_awscli_plugin.utils import example_text
 
 logger = logging.getLogger(__name__)
 
 class PullCommand(BasicCommand):
     NAME = 'pull'
+
+    EXAMPLES = example_text(__file__, NAME + '.rst')
+
     DESCRIPTION = ('This command pulls records from a Kinesis stream. ')
     SYNOPSIS = ''
 
