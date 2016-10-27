@@ -3,7 +3,6 @@ Kinesis AWS Command-line Interface Plugin
 This Plugin adds three Kinesis commands to the AWS CLI
 
 # Installation
-### Pip Install 
    Execute the following command To install the Kinesis AWS CLI Plugin under Python site-packages:
 
    `sudo pip install -U git+https://github.com/thomasdeml/kinesis-cli-plugin.git`
