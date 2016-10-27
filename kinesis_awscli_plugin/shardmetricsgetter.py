@@ -54,10 +54,7 @@ class ShardMetricsGetter(object):
     return describe_stream_args 
 
   def has_more_shards(self, stream_description):
-    hms = 'HasMoreShards' in stream_description and stream_description['HasMoreShards'] == True
-    print "HMS: {0}".format(hms)
-    return hms
-
+    return 'HasMoreShards' in stream_description and stream_description['HasMoreShards'] == True
  
   def get_shard_metrics(self, shard_ids):
     shard_metrics_array = []

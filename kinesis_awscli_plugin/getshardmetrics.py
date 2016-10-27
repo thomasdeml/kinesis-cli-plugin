@@ -94,9 +94,13 @@ class GetShardMetricsCommand(BasicCommand):
     def _run_main(self, args, parsed_globals):
       args = self.collect_args(args)
       self.validate_args(args)
+      self.cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals)
+      self.kinesis_client = self.aws_generic_client('kinesis', parsed_globals)
+      if self.shard_metrics_enabled(args.stream_name) == False:
+        raise ValueError("Shard Metrics are not enabled for this stream")
       shard_metrics_getter = ShardMetricsGetter( 
-        cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals),
-        kinesis_client = self.aws_generic_client('kinesis', parsed_globals),
+        cloudwatch_client = self.cloudwatch_client,
+        kinesis_client = self.kinesis_client,
         stream_name = args.stream_name,
         metric_name = args.metric_name,
         start_time = args.start_time,
@@ -108,15 +112,6 @@ class GetShardMetricsCommand(BasicCommand):
       output = self.create_shard_metrics_output(shard_metrics, args)
       self._display_response('get-shard-metrics', output, parsed_globals)
       return 0
-
-    def _display_response(self, command_name, response,
-                          parsed_globals):
-        output = parsed_globals.output
-        if output is None:
-            output = self._session.get_config_variable('output')
-        formatter = get_formatter(output, parsed_globals)
-        formatter(command_name, response)
-
 
     def collect_args(self, args):
       if args.start_time is None:
@@ -136,6 +131,7 @@ class GetShardMetricsCommand(BasicCommand):
          args.end_time = TimeUtils.to_datetime(args.end_time)
       return args
 
+
     def validate_args(self, args):
       if args.metric_name not in self.ALLOWED_METRIC_NAMES:
         raise ValueError('Metric name must be one of the following: {0}'.format(str(self.ALLOWED_METRIC_NAMES)))
@@ -146,7 +142,10 @@ class GetShardMetricsCommand(BasicCommand):
       if args.start_time > args.end_time:
          raise ValueError("Parameter start-time is newer than end-time")
 
-
+    def shard_metrics_enabled(self, stream_name):
+       stream_data = self.kinesis_client.describe_stream(StreamName = stream_name)['StreamDescription']
+       return len(stream_data['EnhancedMonitoring'][0]['ShardLevelMetrics']) > 0
+       
     def aws_generic_client(self, service_name, globals):
       client = self.aws_client(
         service_name, 
@@ -186,3 +185,9 @@ class GetShardMetricsCommand(BasicCommand):
         sorted_shard_array
       )
       return output
+    def _display_response(self, command_name, response, parsed_globals):
+        output = parsed_globals.output
+        if output is None:
+            output = self._session.get_config_variable('output')
+        formatter = get_formatter(output, parsed_globals)
+        formatter(command_name, response)
