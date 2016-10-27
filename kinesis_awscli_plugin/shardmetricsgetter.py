@@ -29,16 +29,36 @@ class ShardMetricsGetter(object):
     return self.sort(shard_metrics_array)
 
   def get_shard_ids_for_stream(self):
-    #BUG BUG - do we need to paginate or does the Python SDK?
-    response = self.kinesis_client.describe_stream(
-      StreamName = self.stream_name
-    )
-     
-    shard_ids = []
-    for shard in response['StreamDescription']['Shards']:
-      shard_ids.append(shard['ShardId'])
-    return shard_ids
-  
+    return self.paginated_describe_stream_shards()
+
+  def paginated_describe_stream_shards(self):
+    exclusive_start_shard_id = None
+    shard_array = []
+    while True:
+      describe_stream_args = self.create_paginated_describe_stream_args(exclusive_start_shard_id)
+      stream_description = self.kinesis_client.describe_stream(**describe_stream_args)['StreamDescription']
+      shards = stream_description['Shards']
+      shard_array.extend(map(lambda shard: shard['ShardId'], shards))
+      more_shards = self.has_more_shards(stream_description)
+      if more_shards == True:
+        exclusive_start_shard_id = shard_array[-1]
+        continue
+      else:
+        break
+    return shard_array 
+
+  def create_paginated_describe_stream_args(self, exclusive_start_shard_id):
+    describe_stream_args =  {'StreamName' : self.stream_name}
+    if exclusive_start_shard_id is not None:
+      describe_stream_args['ExclusiveStartShardId'] = exclusive_start_shard_id 
+    return describe_stream_args 
+
+  def has_more_shards(self, stream_description):
+    hms = 'HasMoreShards' in stream_description and stream_description['HasMoreShards'] == True
+    print "HMS: {0}".format(hms)
+    return hms
+
+ 
   def get_shard_metrics(self, shard_ids):
     shard_metrics_array = []
     for shard_id in shard_ids:
