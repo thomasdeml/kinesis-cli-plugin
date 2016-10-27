@@ -20,7 +20,7 @@ This Plugin adds three Kinesis commands to the AWS CLI
 
 # Usage
 
-### 1. Stream metrics
+### 1. Stream Metrics
    Displays stream-level metrics for the specified stream. By default datapoints of the last 10 minutes get fetched.  
 
    **Example 1:** 
@@ -35,7 +35,7 @@ This Plugin adds three Kinesis commands to the AWS CLI
 
    `aws kinesis get-stream-metrics --stream-name Test --output table`
 
-### 2. Shard-level metrics 
+### 2. Shard-level Metrics 
    Displays shard-level metrics for the specified stream. By default the datapoints of the last 10 minutes get fetched and averaged. The metric name used by default is 'IncomingRecords'.   
 
    **Example 1:** 
