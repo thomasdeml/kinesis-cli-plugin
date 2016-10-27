@@ -97,7 +97,7 @@ class GetShardMetricsCommand(BasicCommand):
       self.cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals)
       self.kinesis_client = self.aws_generic_client('kinesis', parsed_globals)
       if self.shard_metrics_enabled(args.stream_name) == False:
-        raise ValueError("Shard Metrics are not enabled for this stream")
+        raise ValueError("Shard Metrics are not enabled for this stream. Use the command enable-enhanced-monitoring to enable them.")
       shard_metrics_getter = ShardMetricsGetter( 
         cloudwatch_client = self.cloudwatch_client,
         kinesis_client = self.kinesis_client,
