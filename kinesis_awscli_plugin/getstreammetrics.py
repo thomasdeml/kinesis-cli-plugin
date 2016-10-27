@@ -168,19 +168,19 @@ class GetStreamMetricsCommand(BasicCommand):
     def create_stream_metrics_output(self, metrics_array, args):
       output = {}
       
-      output['description'] = 'Stream metrics for stream "{1}" between {2} and {3}'.format(
+      output['Description'] = 'Stream metrics for stream "{1}" between {2} and {3}'.format(
         args.statistic, 
         args.stream_name,
         TimeUtils.iso8601(args.start_time),
         TimeUtils.iso8601(args.end_time),
       )
       # args not json serializable. Need to do by hand
-      output['start_time'] = TimeUtils.iso8601(args.start_time)
-      output['end_time'] = TimeUtils.iso8601(args.end_time)
-      output['metric_names'] = args.metric_names
-      output['statistic'] = args.statistic 
+      output['StartTime'] = TimeUtils.iso8601(args.start_time)
+      output['EndTime'] = TimeUtils.iso8601(args.end_time)
+      output['MetricNames'] = args.metric_names
+      output['Statistic'] = args.statistic 
  
-      output['metrics'] = map(
+      output['Metrics'] = map(
         lambda _kinesis_metrics: {'Metric': _kinesis_metrics.metric_id, 'Datapoints': _kinesis_metrics.datapoints}, 
         metrics_array
       )
@@ -193,4 +193,3 @@ class GetStreamMetricsCommand(BasicCommand):
             output = self._session.get_config_variable('output')
         formatter = get_formatter(output, parsed_globals)
         formatter(command_name, response)
-

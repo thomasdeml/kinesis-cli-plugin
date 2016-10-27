@@ -169,19 +169,19 @@ class GetShardMetricsCommand(BasicCommand):
     def create_shard_metrics_output(self, sorted_shard_array, args):
       output = {}
       
-      output['description'] = 'Sorted average of "{0} ({1}) per minute" between {2} and {3}'.format(
+      output['Description'] = 'Sorted average of "{0} ({1}) per minute" between {2} and {3}'.format(
         args.metric_name, 
         args.statistic,
         TimeUtils.iso8601(args.start_time),
         TimeUtils.iso8601(args.end_time),
       )
       # args not json serializable. Need to do by hand
-      output['start_time'] = TimeUtils.iso8601(args.start_time)
-      output['end_time'] = TimeUtils.iso8601(args.end_time)
-      output['metric_name'] = args.metric_name
-      output['statistic'] = args.statistic 
+      output['StartTime'] = TimeUtils.iso8601(args.start_time)
+      output['EndTime'] = TimeUtils.iso8601(args.end_time)
+      output['MetricName'] = args.metric_name
+      output['Statistic'] = args.statistic 
  
-      output['shard_metrics'] = map(
+      output['ShardMetrics'] = map(
         lambda _shard: {'ShardId': _shard.metric_id, 'Average': round(_shard.avg(), 2), 'Datapoints': _shard.datapoints},
         sorted_shard_array
       )
