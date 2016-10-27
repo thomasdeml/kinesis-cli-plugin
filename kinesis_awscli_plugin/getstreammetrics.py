@@ -81,7 +81,8 @@ class GetStreamMetricsCommand(BasicCommand):
           'name': 'start-time', 
           'required': False, 
           'help_text': 'The start time for the metrics to query for in UTC. Time format is ISO8601. Example: "{0}". '\
-                       'Default is now minus {1} minutes.'.format(
+                       'Default is now minus {1} minutes. Relative times like "30 minutes ago" can be used if the '\
+                       'Python module dateparser is installed (pip install dateparser).'.format(
                           TimeUtils.iso8601(datetime.datetime.utcnow() - datetime.timedelta(minutes=DEFAULT_DURATION)), 
                           DEFAULT_DURATION
                        )
@@ -90,7 +91,8 @@ class GetStreamMetricsCommand(BasicCommand):
           'name': 'end-time', 
           'required': False, 
           'help_text': 'The end time for the metrics to query for in UTC. Time format is ISO8601. Example: "{0}". '\
-                       'Default is "now".'.format(
+                       'Default is "now". Relative times like "30 minutes ago" can be used if the '\
+                       'Python module dateparser is installed (pip install dateparser).'.format(
                           TimeUtils.iso8601(datetime.datetime.utcnow())
                        )
         },
