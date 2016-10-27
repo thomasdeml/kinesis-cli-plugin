@@ -16,12 +16,11 @@ import sys
 import datetime
 
 from awscli.customizations.commands import BasicCommand
-from awscli.formatter import get_formatter
 from kinesis_awscli_plugin.shardmetricsgetter import ShardMetricsGetter
 from kinesis_awscli_plugin.timeutils import TimeUtils
 from kinesis_awscli_plugin.kinesishelper import KinesisHelper
 from kinesis_awscli_plugin.cloudwatchhelper import CloudWatchHelper
-from kinesis_awscli_plugin.utils import example_text
+from kinesis_awscli_plugin.utils import example_text, display_response
 
 class GetShardMetricsCommand(BasicCommand):
 
@@ -112,7 +111,7 @@ class GetShardMetricsCommand(BasicCommand):
       shard_metrics = shard_metrics_getter.get()
  
       output = self.create_shard_metrics_output(shard_metrics, args)
-      self._display_response('get-shard-metrics', output, parsed_globals)
+      display_response(self._session, 'get-shard-metrics', output, parsed_globals)
       return 0
 
     def collect_args(self, args):
@@ -165,9 +164,3 @@ class GetShardMetricsCommand(BasicCommand):
         sorted_shard_array
       )
       return output
-    def _display_response(self, command_name, response, parsed_globals):
-        output = parsed_globals.output
-        if output is None:
-            output = self._session.get_config_variable('output')
-        formatter = get_formatter(output, parsed_globals)
-        formatter(command_name, response)

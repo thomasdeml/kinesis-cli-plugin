@@ -16,11 +16,10 @@ import sys
 import datetime
 
 from awscli.customizations.commands import BasicCommand
-from awscli.formatter import get_formatter
 from kinesis_awscli_plugin.streammetricsgetter import StreamMetricsGetter
 from kinesis_awscli_plugin.timeutils import TimeUtils
 from kinesis_awscli_plugin.cloudwatchhelper import CloudWatchHelper
-from kinesis_awscli_plugin.utils import example_text
+from kinesis_awscli_plugin.utils import example_text, display_response
 
 class GetStreamMetricsCommand(BasicCommand):
 
@@ -113,7 +112,7 @@ class GetStreamMetricsCommand(BasicCommand):
       )
       stream_metrics = stream_metrics_getter.get(args.metric_names)
       output = self.create_stream_metrics_output(stream_metrics, args)
-      self._display_response('get-stream-metrics', output, parsed_globals)
+      display_response(self._session, 'get-stream-metrics', output, parsed_globals)
       return 0
 
     def collect_args(self, args):
@@ -167,11 +166,3 @@ class GetStreamMetricsCommand(BasicCommand):
         metrics_array
       )
       return output
-
-    def _display_response(self, command_name, response,
-                          parsed_globals):
-        output = parsed_globals.output
-        if output is None:
-            output = self._session.get_config_variable('output')
-        formatter = get_formatter(output, parsed_globals)
-        formatter(command_name, response)
