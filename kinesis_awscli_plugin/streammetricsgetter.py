@@ -4,16 +4,14 @@ class StreamMetricsGetter(object):
  
   def __init__(
     self,
-    cloudwatch_client,
-    kinesis_client,
+    cloudwatch_helper,
     stream_name,
     start_time,
     end_time,
     statistic = 'Average',
     period = 60,
   ):
-    self.cloudwatch_client = cloudwatch_client
-    self.kinesis_client = kinesis_client
+    self.cloudwatch_helper = cloudwatch_helper
     self.stream_name = stream_name
     self.start_time = start_time
     self.end_time = end_time
@@ -34,15 +32,12 @@ class StreamMetricsGetter(object):
     return metrics_array
 
   def get_metric_datapoints(self, metric_name):
-    response = self.cloudwatch_client.get_metric_statistics(
+    return self.cloudwatch_helper.get_metric_datapoints(
       Namespace = self.namespace,
       MetricName = metric_name,
       StartTime = self.start_time,
       EndTime = self.end_time,
       Statistics = [self.statistic],
       Period = self.period, 
-      Dimensions = [{'Name': 'StreamName', 'Value': self.stream_name}]
+      Dimensions = self.cloudwatch_helper.get_stream_dimensions(self.stream_name)
     )
-    return response['Datapoints']
-
-

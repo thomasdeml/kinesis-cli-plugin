@@ -19,6 +19,7 @@ from awscli.customizations.commands import BasicCommand
 from awscli.formatter import get_formatter
 from kinesis_awscli_plugin.streammetricsgetter import StreamMetricsGetter
 from kinesis_awscli_plugin.timeutils import TimeUtils
+from kinesis_awscli_plugin.cloudwatchhelper import CloudWatchHelper
 from kinesis_awscli_plugin.utils import example_text
 
 class GetStreamMetricsCommand(BasicCommand):
@@ -104,8 +105,7 @@ class GetStreamMetricsCommand(BasicCommand):
       self.validate_args(args)
       stream_metrics_array = []
       stream_metrics_getter = StreamMetricsGetter( 
-        cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals),
-        kinesis_client = self.aws_generic_client('kinesis', parsed_globals),
+        cloudwatch_helper = CloudWatchHelper(self._session, parsed_globals),
 	stream_name = args.stream_name,
 	start_time = args.start_time,
 	end_time = args.end_time,
@@ -146,26 +146,6 @@ class GetStreamMetricsCommand(BasicCommand):
       
       if args.start_time > args.end_time:
          raise ValueError("Parameter start-time is newer than end-time")
-
-
-    def aws_generic_client(self, service_name, globals):
-      client = self.aws_client(
-        service_name, 
-        globals.region, 
-        globals.endpoint_url, 
-        globals.verify_ssl
-      )
-      return client
- 
-    def aws_client(self, service_name, region, endpoint_url, verify_ssl):
-      client = self._session.create_client(
-        service_name, 
-        region_name=region,
-        endpoint_url=endpoint_url,
-        verify=verify_ssl
-      )
-      return client
-     
 
     def create_stream_metrics_output(self, metrics_array, args):
       output = {}

@@ -33,13 +33,13 @@ sleep 5 > /dev/null
 clear
 
 echo ''
-echo "SHARD METRICS - ONLY AVERAGES OVER THE DEFAULT TIMEFRAME: aws kinesis --stream-name MetricsTest --query shard_metrics[*].{ShardId:ShardId,Average:Average} --output table "
+echo "SHARD METRICS - ONLY AVERAGES OVER THE DEFAULT TIMEFRAME: aws kinesis --stream-name MetricsTest --query ShardMetrics[*].{ShardId:ShardId,DatapointAverage:DatapointAverage} --output table "
 sleep 5 > /dev/null
-aws kinesis get-shard-metrics --stream-name MetricsTest --metric-name IncomingBytes --statistic Sum --query "shard_metrics[*].{ShardId:ShardId,Average:Average}" --output table | less
+aws kinesis get-shard-metrics --stream-name MetricsTest --metric-name IncomingBytes --statistic Sum --query "ShardMetrics[*].{ShardId:ShardId,DatapointAverage:DatapointAverage}" --output table | less
 sleep 5 > /dev/null
 clear
 
 echo ''
-echo SHARD METRICS WITH CUSTOM TIME: aws kinesis --stream-name MetricsTest --start-time 20 minutes ago --end-time 15 minutes ago  --output table
+echo SHARD METRICS WITH CUSTOM TIME: aws kinesis --stream-name MetricsTest --start-time '20 minutes ago' --end-time '1 minutes ago' --metric-name IncomingBytes --query "ShardMetrics[*].{ShardId:ShardId,DatapointAverage:DatapointAverage}" --output table
 sleep 5 > /dev/null
-aws kinesis get-shard-metrics --stream-name MetricsTest --start-time "20 minutes ago" --end-time "15 minutes ago"  --output table | less
+aws  kinesis  get-shard-metrics --stream-name MetricsTest --metric-name IncomingBytes --statistic  Sum   --query   "ShardMetrics[*].{ShardId:ShardId,DatapointAverage:DatapointAverage}" --output table | less

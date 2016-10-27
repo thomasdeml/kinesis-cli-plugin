@@ -19,6 +19,8 @@ from awscli.customizations.commands import BasicCommand
 from awscli.formatter import get_formatter
 from kinesis_awscli_plugin.shardmetricsgetter import ShardMetricsGetter
 from kinesis_awscli_plugin.timeutils import TimeUtils
+from kinesis_awscli_plugin.kinesishelper import KinesisHelper
+from kinesis_awscli_plugin.cloudwatchhelper import CloudWatchHelper
 from kinesis_awscli_plugin.utils import example_text
 
 class GetShardMetricsCommand(BasicCommand):
@@ -94,13 +96,13 @@ class GetShardMetricsCommand(BasicCommand):
     def _run_main(self, args, parsed_globals):
       args = self.collect_args(args)
       self.validate_args(args)
-      self.cloudwatch_client = self.aws_generic_client('cloudwatch', parsed_globals)
-      self.kinesis_client = self.aws_generic_client('kinesis', parsed_globals)
-      if self.shard_metrics_enabled(args.stream_name) == False:
+      self.cloudwatch_helper = CloudWatchHelper(self._session, parsed_globals)
+      self.kinesis_helper = KinesisHelper(self._session, parsed_globals)
+      if self.kinesis_helper.shard_metrics_enabled(args.stream_name) == False:
         raise ValueError("Shard Metrics are not enabled for this stream. Use the command enable-enhanced-monitoring to enable them.")
       shard_metrics_getter = ShardMetricsGetter( 
-        cloudwatch_client = self.cloudwatch_client,
-        kinesis_client = self.kinesis_client,
+        cloudwatch_helper = self.cloudwatch_helper,
+        kinesis_helper = self.kinesis_helper,
         stream_name = args.stream_name,
         metric_name = args.metric_name,
         start_time = args.start_time,
@@ -142,29 +144,7 @@ class GetShardMetricsCommand(BasicCommand):
       if args.start_time > args.end_time:
          raise ValueError("Parameter start-time is newer than end-time")
 
-    def shard_metrics_enabled(self, stream_name):
-       stream_data = self.kinesis_client.describe_stream(StreamName = stream_name)['StreamDescription']
-       return len(stream_data['EnhancedMonitoring'][0]['ShardLevelMetrics']) > 0
-       
-    def aws_generic_client(self, service_name, globals):
-      client = self.aws_client(
-        service_name, 
-        globals.region, 
-        globals.endpoint_url, 
-        globals.verify_ssl
-      )
-      return client
- 
-    def aws_client(self, service_name, region, endpoint_url, verify_ssl):
-      client = self._session.create_client(
-        service_name, 
-        region_name=region,
-        endpoint_url=endpoint_url,
-        verify=verify_ssl
-      )
-      return client
-     
-
+      
     def create_shard_metrics_output(self, sorted_shard_array, args):
       output = {}
       
@@ -181,7 +161,7 @@ class GetShardMetricsCommand(BasicCommand):
       output['Statistic'] = args.statistic 
  
       output['ShardMetrics'] = map(
-        lambda _shard: {'ShardId': _shard.metric_id, 'Average across datapoints': round(_shard.avg(), 2), 'Datapoints': _shard.datapoints},
+        lambda _shard: {'ShardId': _shard.metric_id, 'DatapointAverage': round(_shard.avg(), 2), 'Datapoints': _shard.datapoints},
         sorted_shard_array
       )
       return output
