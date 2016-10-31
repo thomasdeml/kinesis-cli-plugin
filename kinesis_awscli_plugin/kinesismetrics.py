@@ -14,7 +14,7 @@ class KinesisMetrics(object):
       self._has_data = False
 
   @property
-  def avg(self):
+  def datapoint_average(self):
     # avoid division by zero
     if len(self.metric_values()) > 0: 
       return sum(self.metric_values()) / len(self.metric_values())
@@ -22,11 +22,11 @@ class KinesisMetrics(object):
       return 0
   
   @property
-  def max(self):
+  def datapoint_max(self):
     return max(self.metric_values())
 
   @property
-  def min(self):
+  def datapoint_min(self):
     return min(self.metric_values())
 
   @property

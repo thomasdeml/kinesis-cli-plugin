@@ -62,7 +62,7 @@ class ShardMetricsGetter(object):
   def sort(self, shard_metrics_array):
     return  sorted(
       shard_metrics_array, 
-      key=lambda _shard_metrics_array: _shard_metrics_array.avg(),
+      key=lambda _shard_metrics_array: _shard_metrics_array.datapoint_average,
       reverse=True
     )
 
