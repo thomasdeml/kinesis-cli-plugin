@@ -10,7 +10,7 @@ class KinesisHelper(AWSHelper):
     stream_data = self.client.describe_stream(StreamName = stream_name)['StreamDescription']
     return len(stream_data['EnhancedMonitoring'][0]['ShardLevelMetrics']) > 0
 
-  def paginated_describe_stream_shards(self, stream_name):
+  def stream_shards(self, stream_name):
     exclusive_start_shard_id = None
     shard_array = []
     while True:

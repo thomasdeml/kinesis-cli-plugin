@@ -13,19 +13,23 @@ class KinesisMetrics(object):
     else:
       self._has_data = False
 
+  @property
   def avg(self):
     # avoid division by zero
     if len(self.metric_values()) > 0: 
       return sum(self.metric_values()) / len(self.metric_values())
     else:  
       return 0
-
+  
+  @property
   def max(self):
     return max(self.metric_values())
 
+  @property
   def min(self):
     return min(self.metric_values())
 
+  @property
   def has_data(self):
     return self._has_data
   

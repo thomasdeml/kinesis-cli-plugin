@@ -43,7 +43,7 @@ class ShardMetricsGetter(object):
     )
  
   def get_shard_ids_for_stream(self):
-    return self.kinesis_helper.paginated_describe_stream_shards(self.stream_name)
+    return self.kinesis_helper.stream_shards(self.stream_name)
 
   def get_shard_metrics(self, shard_ids):
     shard_metrics_array = []

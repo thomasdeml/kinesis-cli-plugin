@@ -9,20 +9,10 @@ from argparse import Namespace
 
 class TestShardMetricsGetter:
   def setUp(self):
-    self.kinesis_mock = MagicMock()
-    self.describe_stream_response = {
-      'StreamDescription': {
-        'Shards': [
-          {'ShardId': '1'}, 
-          {'ShardId': '2'}
-         ]
-       }
-    }
-    self.kinesis_mock.describe_stream = MagicMock(return_value = self.describe_stream_response)
-
-    self.cloudwatch_mock = MagicMock()
-    self.get_metric_statistics_response = {
-      "Datapoints": [
+    self.kinesis_helper_mock = MagicMock()
+    self.kinesis_helper_mock.stream_shards = MagicMock(return_value = ['Shard1', 'Shard2'])
+    self.cloudwatch_helper_mock = MagicMock()
+    self.get_metric_datapoints_response = [
         {
             "Timestamp": "2016-10-22T04:57:00Z", 
             "Average": 12, 
@@ -38,14 +28,13 @@ class TestShardMetricsGetter:
             "Average": 4, 
             "Unit": "Bytes"
         }, 
-      ]
-    }
-    self.cloudwatch_mock.get_metric_statistics = MagicMock(return_value = self.get_metric_statistics_response)
+    ]
+    self.cloudwatch_helper_mock.get_metric_datapoints = MagicMock(return_value = self.get_metric_datapoints_response)
 
   def mock_shard_metrics_getter(self):
     return ShardMetricsGetter(
-      self.cloudwatch_mock,
-      self.kinesis_mock,
+      self.cloudwatch_helper_mock,
+      self.kinesis_helper_mock,
       'test',
       TimeUtils.iso8601(datetime.datetime.utcnow()),
       TimeUtils.iso8601(datetime.datetime.utcnow() - datetime.timedelta(minutes=15)),
