@@ -2,7 +2,6 @@ import logging
 import sys
 
 class KinesisMetrics(object):
-  
 
   def __init__(self, metric_id, datapoints, statistic):
     self.datapoints = datapoints
