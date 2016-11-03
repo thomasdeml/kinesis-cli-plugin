@@ -41,4 +41,4 @@ class TestStreamMetricsGetter:
     metrics_getter = self.mock_stream_metrics_getter()
     metrics = metrics_getter.get(['metric1', 'metric2'])  
     assert len(metrics) == 2
-    assert metrics[0].avg() == 6.0
+    assert metrics[0].datapoint_average == 6.0

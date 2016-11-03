@@ -44,7 +44,7 @@ class TestShardMetricsGetter:
     metrics_getter = self.mock_shard_metrics_getter()
     metrics = metrics_getter.get()  
     assert len(metrics) == 2
-    assert metrics[0].avg() == 6.0
+    assert metrics[0].datapoint_average == 6.0
 
   def test_get_shard_datapoints(self):
     metrics_getter = self.mock_shard_metrics_getter()
