@@ -20,8 +20,6 @@ class TestPushPull:
   def test_push(self):
     command = 'for i in {1..10};do echo "$i ";sleep 0.1;done | aws kinesis push --disable-batch --push-delay 100 --stream-name ' + self.stream_name
     command_output = os.popen(command).read()
-    assert '.....' in command_output
-    print("here")
     stream_records = self.get_all_stream_records()
     print("STREAM RECORDS: %s" % stream_records)
     assert '1 2 3 4 5 6 7 8 9 10' in stream_records
