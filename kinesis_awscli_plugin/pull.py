@@ -1,7 +1,7 @@
 from threading import Thread, Event
 import time
 import base64
-from datetime import datetime
+import datetime
 import json
 import logging
 from sys import stdout, stderr
@@ -42,6 +42,12 @@ class PullCommand(BasicCommand):
          'default': '5000',
          'help_text': 'Specifies the delay in milliseconds before pulling the '
                       'next batch of records. Defaults to 5000 milliseconds.'},
+
+         {'name': 'duration', 
+         'cli_type_name': 'integer', 
+         'default': '-1',
+         'help_text': 'Specifies how many seconds the command should pull from the stream. '
+                      'Defaults to -1 (infinite).'},
     ]
 
     UPDATE = False
@@ -82,7 +88,9 @@ class PullCommand(BasicCommand):
                 queue,
                 self.kinesis,
                 gsi_response['ShardIterator'],
-                int(options.pull_delay))
+                int(options.pull_delay),
+                int(options.duration),
+            )
             puller.start()
             threads.append(puller)
         else:
@@ -107,17 +115,34 @@ class PullCommand(BasicCommand):
 
 
 class RecordsPuller(BaseThread):
-    def __init__(self, stop_flag, queue, kinesis_service, shard_iterator,  pull_delay):
+    def __init__(
+      self, 
+      stop_flag, 
+      queue, 
+      kinesis_service, 
+      shard_iterator,  
+      pull_delay,
+      duration,
+    ):
         super(RecordsPuller, self).__init__(stop_flag)
         self.queue = queue
         self.kinesis_service = kinesis_service
         self.next_shard_iterator = shard_iterator
         self.pull_delay = pull_delay
+        self.duration = duration
 
     @ExponentialBackoff(stderr=True, logger=logger, exception=(ServerError))
     def _run(self):
+        if self.duration == -1:
+            self.end_time = datetime.datetime(datetime.MAXYEAR,1,1)
+        else:
+            self.end_time = datetime.datetime.now() + datetime.timedelta(seconds = self.duration)
+
+        logger.debug('pulling from stream ends at %s' %  self.end_time)
 
         while True:
+            if datetime.datetime.now() > self.end_time:
+               self.stop_flag.set()
             if self.stop_flag.is_set():
                 logger.debug('Puller is leaving...')
                 break
