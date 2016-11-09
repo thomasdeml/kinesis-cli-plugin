@@ -1,20 +1,11 @@
 from threading import Thread, Event
-import time
-import base64
-import datetime
-import json
 import logging
-from sys import stdout, stderr
-from dateutil.tz import tzlocal, tzutc
 from six.moves import queue as Queue
-from botocore.vendored import requests
-
-from awscli.errorhandler import ServerError
 from awscli.customizations.commands import BasicCommand
-#from awscli.customizations.kinesis import utils
-from kinesis_awscli_plugin.retry import ExponentialBackoff
-from kinesis_awscli_plugin.threads import BaseThread, ExitChecker
+from kinesis_awscli_plugin.threads import ExitChecker
 from kinesis_awscli_plugin.utils import example_text
+from kinesis_awscli_plugin.recordrenderer import RecordRenderer
+from kinesis_awscli_plugin.recordspuller import RecordsPuller
 
 logger = logging.getLogger(__name__)
 
@@ -114,86 +105,3 @@ class PullCommand(BasicCommand):
         exit_checker.join()
 
 
-class RecordsPuller(BaseThread):
-    def __init__(
-      self, 
-      stop_flag, 
-      queue, 
-      kinesis_service, 
-      shard_iterator,  
-      pull_delay,
-      duration,
-    ):
-        super(RecordsPuller, self).__init__(stop_flag)
-        self.queue = queue
-        self.kinesis_service = kinesis_service
-        self.next_shard_iterator = shard_iterator
-        self.pull_delay = pull_delay
-        self.duration = duration
-
-    @ExponentialBackoff(stderr=True, logger=logger, exception=(ServerError))
-    def _run(self):
-        if self.duration == -1:
-            self.end_time = datetime.datetime(datetime.MAXYEAR,1,1)
-        else:
-            self.end_time = datetime.datetime.now() + datetime.timedelta(seconds = self.duration)
-
-        logger.debug('pulling from stream ends at %s' %  self.end_time)
-
-        while True:
-            if datetime.datetime.now() > self.end_time:
-               self.stop_flag.set()
-            if self.stop_flag.is_set():
-                logger.debug('Puller is leaving...')
-                break
-            else:
-                #Event.wait expects wait time in seconds. Command-line uses milliseconds
-                self.stop_flag.wait(float(self.pull_delay/1000.0))
-
-            logger.debug('Getting records with shard iterator [%s]' %
-                         (self.next_shard_iterator))
-
-            params = dict(ShardIterator=self.next_shard_iterator)
-            gr_response = self.kinesis_service.get_records(**params)
-            if gr_response:
-                records = gr_response['Records']
-                if len(records) == 0:
-                    logger.debug('No records read')
-                else:
-                    logger.debug('Adding records to the queue')
-                    self.queue.put(RecordBatch(records))
-                    
-                self.next_shard_iterator = gr_response['NextShardIterator']
-            else:
-               logger.debug('empty response')
-
-
-class RecordRenderer(BaseThread):
-    def __init__(self, stop_flag, queue, render_delay):
-        super(RecordRenderer, self).__init__(stop_flag)
-        self.queue = queue
-        self.render_delay = render_delay
-
-    def _run(self):
-        while True:
-            try:
-                record_batch = self.queue.get(False)
-                logger.debug('Rendering record batch. %d batches are remaining.' % self.queue.qsize())
-                stdout.flush()
-                for record in record_batch.records:
-                    revised_record = record.copy()
-                    stdout.write(base64.b64decode(revised_record['Data']) + '\n')
-                    stdout.flush()
-            except Queue.Empty:
-                if self.stop_flag.is_set():
-                    logger.debug('Renderer is leaving...')
-                    break
-                else:
-                    logger.debug('waiting for more data')
-                    # wait expects time in seconds. Command-line passes it in milliseconds
-                    self.stop_flag.wait(float(self.render_delay/1000.0))
-
-
-class RecordBatch:
-    def __init__(self, records):
-        self.records = records
