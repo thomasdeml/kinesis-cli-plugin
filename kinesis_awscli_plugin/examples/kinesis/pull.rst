@@ -12,3 +12,9 @@ aws kinesis pull --stream-name Test --shard-id shardId-000000000001
 This command retrieves data from shard 0 of stream Test. It calls GetRecords every 500ms.
 
 aws kinesis pull --stream-name Test --shard-id shardId-00000000000 --pull-delay 500
+
+``Example 3:``
+
+This command retrieves data from shard 0 of stream Test. It returns after pulling for 60 seconds. 
+
+aws kinesis pull --stream-name Test --shard-id shardId-00000000000 --duration 60
