@@ -1,11 +1,7 @@
-import tempfile
 import datetime
-from mock import Mock 
-
 from kinesis_awscli_plugin.shardmetricsgetter import ShardMetricsGetter
 from kinesis_awscli_plugin.timeutils import TimeUtils
 from mock import MagicMock
-from argparse import Namespace
 
 class TestShardMetricsGetter:
   def setUp(self):
