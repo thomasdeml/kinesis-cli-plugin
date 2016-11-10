@@ -1,6 +1,7 @@
 import logging
 import base64
 from six.moves import queue as Queue
+from sys import stdout
 from kinesis_awscli_plugin.threads import BaseThread, ExitChecker
 
 logger = logging.getLogger(__name__)
@@ -18,7 +19,8 @@ class RecordRenderer(BaseThread):
                 logger.debug('Rendering record batch. %d batches are remaining.' % self.queue.qsize())
                 for record in record_batch.records:
                     revised_record = record.copy()
-                    logger.debug(base64.b64decode(revised_record['Data']) + '\n')
+                    stdout.write(base64.b64decode(revised_record['Data']) + '\n')
+                    stdout.flush()
             except Queue.Empty:
                 if self.stop_flag.is_set():
                     logger.debug('Renderer is leaving...')
