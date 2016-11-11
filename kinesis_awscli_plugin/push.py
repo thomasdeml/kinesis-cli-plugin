@@ -18,6 +18,7 @@ from kinesis_awscli_plugin.threads import BaseThread, ExitChecker
 from kinesis_awscli_plugin.retry import ExponentialBackoff
 from kinesis_awscli_plugin.standardinputrecordsreader import StandardInputRecordsReader
 from kinesis_awscli_plugin.recordpublisher import RecordPublisher
+from kinesis_awscli_plugin.kinesishelper import KinesisHelper
 from kinesis_awscli_plugin.utils \
      import log_to_stdout,log_to_stderr, register_ctrl_c_handler, example_text
 import botocore
@@ -78,11 +79,7 @@ class PushCommand(BasicCommand):
     QUEUE_SIZE = 10000
 
     def _run_main(self, args, parsed_globals):
-        self.kinesis = self._session.create_client(
-            'kinesis',
-            region_name=parsed_globals.region,
-            endpoint_url=parsed_globals.endpoint_url,
-            verify=parsed_globals.verify_ssl)
+        self.kinesis = KinesisHelper(self._session, parsed_globals).client
         register_ctrl_c_handler()
         self._call_push_stdin(args, parsed_globals)
         return 0

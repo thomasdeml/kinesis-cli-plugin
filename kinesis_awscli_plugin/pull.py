@@ -6,6 +6,7 @@ from kinesis_awscli_plugin.threads import ExitChecker
 from kinesis_awscli_plugin.utils import example_text
 from kinesis_awscli_plugin.recordrenderer import RecordRenderer
 from kinesis_awscli_plugin.recordspuller import RecordsPuller
+from kinesis_awscli_plugin.kinesishelper import KinesisHelper
 
 logger = logging.getLogger(__name__)
 
@@ -54,11 +55,7 @@ class PullCommand(BasicCommand):
 
     def _run_main(self, args, parsed_globals):
         # Initialize services
-        self.kinesis = self._session.create_client(
-            'kinesis',
-            region_name=parsed_globals.region,
-            endpoint_url=parsed_globals.endpoint_url,
-            verify=parsed_globals.verify_ssl)
+        self.kinesis = KinesisHelper(self._session, parsed_globals).client
         # Run the command and report success
         self._call(args, parsed_globals)
 
