@@ -18,7 +18,6 @@ import traceback
 
 
 class ExponentialBackoff(object):
-
     """
     Decorator which performs exponential backoff and retry of a function for up
     to a maximum of max_retries everytime the function returns an exception.
@@ -46,8 +45,13 @@ class ExponentialBackoff(object):
 
     """
 
-    def __init__(self, max_retries=5, logger=None, exception=Exception,
-                 stderr=False, initial_backoff=1, quiet=False):
+    def __init__(self,
+                 max_retries=5,
+                 logger=None,
+                 exception=Exception,
+                 stderr=False,
+                 initial_backoff=1,
+                 quiet=False):
         self.max_retries = max_retries
         self.logger = logger
         self.exception = exception
@@ -71,7 +75,7 @@ class ExponentialBackoff(object):
                     pass
 
                 # Requested logging
-                backoff = self.initial_backoff * (2 ** retry)
+                backoff = self.initial_backoff * (2**retry)
                 if retry < self.max_retries - 1:
                     msg = 'Method "%s" failed, backing off %s seconds, ' \
                           'and retrying' % (f.__name__, backoff)
