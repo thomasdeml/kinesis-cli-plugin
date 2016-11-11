@@ -9,20 +9,14 @@ from kinesis_awscli_plugin.threads import BaseThread
 
 logger = logging.getLogger(__name__)
 
+
 class RecordPublisher(BaseThread):
 
     MAX_RECORD_SIZE = 50 * 1024
     MAX_TIME_BETWEEN_PUTS = 5
-    def __init__(
-        self, 
-        stop_flag, 
-        queue, 
-        kinesis_service, 
-        stream_name, 
-        partition_key, 
-        batch_disabled, 
-        push_delay
-    ):
+
+    def __init__(self, stop_flag, queue, kinesis_service, stream_name,
+                 partition_key, batch_disabled, push_delay):
 
         super(RecordPublisher, self).__init__(stop_flag)
         self.queue = queue
@@ -32,32 +26,38 @@ class RecordPublisher(BaseThread):
         self.batch_disabled = batch_disabled
         self.push_delay = push_delay
 
-
     @ExponentialBackoff(stderr=True, logger=logger, exception=(ServerError))
     def _run(self):
         unput_data = ''
         last_record_put_time = datetime.now()
         while True:
             try:
-                queue_entry  = self.queue.get(False) 
+                queue_entry = self.queue.get(False)
                 new_data = queue_entry['data']
                 # if batching is turned off we immediately put the data
                 if self.batch_disabled and len(new_data) > 0:
-                    new_data = self._truncate_if_necessary(new_data, self.MAX_RECORD_SIZE)
+                    new_data = self._truncate_if_necessary(
+                        new_data, self.MAX_RECORD_SIZE)
                     new_data = new_data.rstrip('\n')
-                    self._put_kinesis_record(self.get_partition_key(new_data), new_data)
+                    self._put_kinesis_record(
+                        self.get_partition_key(new_data), new_data)
                     continue
                 logger.debug('New data: ' + new_data + '\n')
-                if self._does_new_data_fit(new_data, unput_data, self.MAX_RECORD_SIZE):
+                if self._does_new_data_fit(new_data, unput_data,
+                                           self.MAX_RECORD_SIZE):
                     logger.debug('adding data to existing batch')
                     unput_data += new_data
-                    if self._is_time_to_put(last_record_put_time, self.MAX_TIME_BETWEEN_PUTS):
-                        self._put_kinesis_record(self.get_partition_key(unput_data), unput_data)
+                    if self._is_time_to_put(last_record_put_time,
+                                            self.MAX_TIME_BETWEEN_PUTS):
+                        self._put_kinesis_record(
+                            self.get_partition_key(unput_data), unput_data)
                         unput_data = ''
                         last_record_put_time = datetime.now()
                 else:
-                    self._put_kinesis_record(self.get_partition_key(unput_data), unput_data)
-                    unput_data = self._truncate_if_necessary(new_data, self.MAX_RECORD_SIZE)
+                    self._put_kinesis_record(
+                        self.get_partition_key(unput_data), unput_data)
+                    unput_data = self._truncate_if_necessary(
+                        new_data, self.MAX_RECORD_SIZE)
                     last_record_put_time = datetime.now()
             except Queue.Empty:
                 if self.stop_flag.is_set():
@@ -65,25 +65,23 @@ class RecordPublisher(BaseThread):
                     break
                 else:
                     # Event.wait expects wait time in seconds. Command-line uses milliseconds.
-                    self.stop_flag.wait(float(self.push_delay/1000.0))
+                    self.stop_flag.wait(float(self.push_delay / 1000.0))
         # still need to put remaining records
-        if len(unput_data) > 0: 
-            self._put_kinesis_record(self.get_partition_key(unput_data), unput_data)
+        if len(unput_data) > 0:
+            self._put_kinesis_record(
+                self.get_partition_key(unput_data), unput_data)
 
     def get_partition_key(self, data):
-        if self.partition_key is None: 
+        if self.partition_key is None:
             m = hashlib.md5()
             m.update(data)
-            return  m.hexdigest()
+            return m.hexdigest()
         else:
             return self.partition_key
 
     def _put_kinesis_record(self, partition_key, data):
         params = dict(
-            StreamName=self.stream_name,
-            PartitionKey=partition_key,
-            Data=data
-        )
+            StreamName=self.stream_name, PartitionKey=partition_key, Data=data)
         response = self.kinesis_service.put_record(**params)
         stdout.write('.')
         stdout.flush()

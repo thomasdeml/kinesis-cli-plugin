@@ -28,6 +28,7 @@ from awscli.errorhandler import ServerError
 
 logger = logging.getLogger(__name__)
 
+
 class PushCommand(BasicCommand):
     NAME = 'push'
 
@@ -40,43 +41,48 @@ class PushCommand(BasicCommand):
     DEFAULT_PUSH_DELAY = 1000
 
     ARG_TABLE = [
-
-        {'name': 'stream-name',
-         'required': True,
-         'help_text': 'Specifies the stream name'},
-        
-        {'name': 'partition-key',
-         'required': False,
-         'help_text': 'Specifies the partition key, e.g. $HOSTNAME. If not provided the partition key is random number.'},
-
-        {'name': 'push-delay', 
-         'cli_type_name': 'integer',
-         'default': DEFAULT_PUSH_DELAY,
-         'help_text': 'Specifies the delay in milliseconds between publishing '
-                      'two batches of streams. Defaults to 1000 ms. Records also '
-                      'get put if the maximum payload of 50kB is reached.'},
-
-        {'name': 'disable-batch', 
-         'action': 'store_true',
-         'help_text': 'Batches are batched up to 50k payload. Specify --_-batch to disable batching.'},
-
-        {'name': 'dry-run', 
-         'action': 'store_true',
-         'help_text': 'Prints stream data instead of sending to service.'},
+        {
+            'name': 'stream-name',
+            'required': True,
+            'help_text': 'Specifies the stream name'
+        },
+        {
+            'name': 'partition-key',
+            'required': False,
+            'help_text':
+            'Specifies the partition key, e.g. $HOSTNAME. If not provided the partition key is random number.'
+        },
+        {
+            'name': 'push-delay',
+            'cli_type_name': 'integer',
+            'default': DEFAULT_PUSH_DELAY,
+            'help_text':
+            'Specifies the delay in milliseconds between publishing '
+            'two batches of streams. Defaults to 1000 ms. Records also '
+            'get put if the maximum payload of 50kB is reached.'
+        },
+        {
+            'name': 'disable-batch',
+            'action': 'store_true',
+            'help_text':
+            'Batches are batched up to 50k payload. Specify --_-batch to disable batching.'
+        },
+        {
+            'name': 'dry-run',
+            'action': 'store_true',
+            'help_text': 'Prints stream data instead of sending to service.'
+        },
     ]
 
     UPDATE = False
     QUEUE_SIZE = 10000
 
-
-
     def _run_main(self, args, parsed_globals):
         self.kinesis = self._session.create_client(
-            'kinesis', 
+            'kinesis',
             region_name=parsed_globals.region,
-            endpoint_url = parsed_globals.endpoint_url,
-            verify=parsed_globals.verify_ssl
-        )
+            endpoint_url=parsed_globals.endpoint_url,
+            verify=parsed_globals.verify_ssl)
         register_ctrl_c_handler()
         self._call_push_stdin(args, parsed_globals)
         return 0
@@ -88,14 +94,10 @@ class PushCommand(BasicCommand):
         reader = StandardInputRecordsReader(stop_flag, queue, options.dry_run)
         reader.start()
         threads.append(reader)
-        publisher = RecordPublisher(
-            stop_flag, 
-            queue, 
-            self.kinesis, 
-            options.stream_name, 
-            options.partition_key,
-            options.disable_batch,
-            int(options.push_delay))
+        publisher = RecordPublisher(stop_flag, queue, self.kinesis,
+                                    options.stream_name, options.partition_key,
+                                    options.disable_batch,
+                                    int(options.push_delay))
         publisher.start()
         threads.append(publisher)
         self._wait_on_exit(stop_flag)
@@ -113,6 +115,3 @@ class PushCommand(BasicCommand):
         logger.debug('Shutting down...')
         stop_flag.set()
         exit_checker.join()
-
-
-

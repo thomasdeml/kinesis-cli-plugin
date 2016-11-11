@@ -5,9 +5,11 @@ from kinesis_awscli_plugin.threads import BaseThread
 
 logger = logging.getLogger(__name__)
 
+
 class StandardInputRecordsReader(BaseThread):
 
     MAX_LINE_LENGTH = 20 * 1024
+
     def __init__(self, stop_flag, queue, dry_run=False):
         super(StandardInputRecordsReader, self).__init__(stop_flag)
         self.queue = queue
@@ -19,8 +21,8 @@ class StandardInputRecordsReader(BaseThread):
             line = stdin.readline()
             #data = line.rstrip('\n')
             data = line
-            if len(data) > self.MAX_LINE_LENGTH: 
-              raise ValueError("Line is too long")
+            if len(data) > self.MAX_LINE_LENGTH:
+                raise ValueError("Line is too long")
             if data:
                 record = {'data': data}
                 if self.dry_run:
@@ -36,5 +38,3 @@ class StandardInputRecordsReader(BaseThread):
             if self.stop_flag.is_set():
                 logger.debug('Reader is leaving...')
                 break
-
-

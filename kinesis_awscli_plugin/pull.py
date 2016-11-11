@@ -9,6 +9,7 @@ from kinesis_awscli_plugin.recordspuller import RecordsPuller
 
 logger = logging.getLogger(__name__)
 
+
 class PullCommand(BasicCommand):
     NAME = 'pull'
 
@@ -18,27 +19,33 @@ class PullCommand(BasicCommand):
     SYNOPSIS = ''
 
     ARG_TABLE = [
-        
-        {'name': 'stream-name', 
-         'required': True,
-         'help_text': 'Specifies the Kinesis stream name'},
-        
-        {'name': 'shard-id', 
-         'required': True, 
-         'help_text': 'Specifies the shard id that should be pulled.'
-                      'Can be retrieved via describe-stream'},
-        
-        {'name': 'pull-delay', 
-         'cli_type_name': 'integer', 
-         'default': '5000',
-         'help_text': 'Specifies the delay in milliseconds before pulling the '
-                      'next batch of records. Defaults to 5000 milliseconds.'},
-
-         {'name': 'duration', 
-         'cli_type_name': 'integer', 
-         'default': '-1',
-         'help_text': 'Specifies how many seconds the command should pull from the stream. '
-                      'Defaults to -1 (infinite).'},
+        {
+            'name': 'stream-name',
+            'required': True,
+            'help_text': 'Specifies the Kinesis stream name'
+        },
+        {
+            'name': 'shard-id',
+            'required': True,
+            'help_text': 'Specifies the shard id that should be pulled.'
+            'Can be retrieved via describe-stream'
+        },
+        {
+            'name': 'pull-delay',
+            'cli_type_name': 'integer',
+            'default': '5000',
+            'help_text':
+            'Specifies the delay in milliseconds before pulling the '
+            'next batch of records. Defaults to 5000 milliseconds.'
+        },
+        {
+            'name': 'duration',
+            'cli_type_name': 'integer',
+            'default': '-1',
+            'help_text':
+            'Specifies how many seconds the command should pull from the stream. '
+            'Defaults to -1 (infinite).'
+        },
     ]
 
     UPDATE = False
@@ -48,11 +55,10 @@ class PullCommand(BasicCommand):
     def _run_main(self, args, parsed_globals):
         # Initialize services
         self.kinesis = self._session.create_client(
-            'kinesis', 
+            'kinesis',
             region_name=parsed_globals.region,
-            endpoint_url = parsed_globals.endpoint_url,
-            verify = parsed_globals.verify_ssl
-        )
+            endpoint_url=parsed_globals.endpoint_url,
+            verify=parsed_globals.verify_ssl)
         # Run the command and report success
         self._call(args, parsed_globals)
 
@@ -60,9 +66,10 @@ class PullCommand(BasicCommand):
 
     def _call(self, options, parsed_globals):
 
-        params = dict(StreamName=options.stream_name,
-                      ShardId=options.shard_id, 
-                      ShardIteratorType = 'LATEST')
+        params = dict(
+            StreamName=options.stream_name,
+            ShardId=options.shard_id,
+            ShardIteratorType='LATEST')
         gsi_response = self.kinesis.get_shard_iterator(**params)
 
         threads = []
@@ -75,18 +82,18 @@ class PullCommand(BasicCommand):
             renderer.start()
             threads.append(renderer)
             puller = RecordsPuller(
-                stop_flag, 
+                stop_flag,
                 queue,
                 self.kinesis,
                 gsi_response['ShardIterator'],
                 int(options.pull_delay),
-                int(options.duration),
-            )
+                int(options.duration), )
             puller.start()
             threads.append(puller)
         else:
-            print('Cannot retrieve shard iterator for stream [%s] / shard [%s] ' %
-                  (options.stream_name, options.shard_id))
+            print(
+                'Cannot retrieve shard iterator for stream [%s] / shard [%s] '
+                % (options.stream_name, options.shard_id))
 
         self._wait_on_exit(stop_flag)
         for thread in threads:
@@ -103,5 +110,3 @@ class PullCommand(BasicCommand):
         logger.debug('Setting stop_flag')
         stop_flag.set()
         exit_checker.join()
-
-
