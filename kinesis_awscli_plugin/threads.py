@@ -64,6 +64,8 @@ class BaseThread(Thread):
     def run(self):
         try:
             self._run()
+        # BUGBUG: we swallow all exceptions!!!
+        # for example if a line is longer than MAX_SIZE in StandardInputRecordsReader!
         except Exception as e:
             msg = '%s leaving due to %s' % (self, e)
             stderr.write('%s\n' % msg)
