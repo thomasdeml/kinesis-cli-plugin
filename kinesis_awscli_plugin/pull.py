@@ -12,12 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 class PullCommand(BasicCommand):
+
     NAME = 'pull'
 
     EXAMPLES = example_text(__file__, NAME + '.rst')
 
     DESCRIPTION = ('This command pulls records from a Kinesis stream. ')
-    SYNOPSIS = ''
+
+    QUEUE_SIZE = 1000
 
     ARG_TABLE = [
         {
@@ -49,49 +51,35 @@ class PullCommand(BasicCommand):
         },
     ]
 
-    UPDATE = False
-
-    QUEUE_SIZE = 10
-
     def _run_main(self, args, parsed_globals):
         # Initialize services
-        self.kinesis = KinesisHelper(self._session, parsed_globals).client
+        self.kinesis_helper = KinesisHelper(self._session, parsed_globals)
         # Run the command and report success
         self._call(args, parsed_globals)
-
         return 0
 
     def _call(self, options, parsed_globals):
 
-        params = dict(
-            StreamName=options.stream_name,
-            ShardId=options.shard_id,
-            ShardIteratorType='LATEST')
-        gsi_response = self.kinesis.get_shard_iterator(**params)
-
         threads = []
         stop_flag = Event()
-        logger.debug(str(gsi_response))
-        if gsi_response and gsi_response['ShardIterator']:
-            queue = Queue.Queue(self.QUEUE_SIZE)
-            # BUGBUG: using pull delay also for rendering!!!
-            renderer = RecordRenderer(stop_flag, queue, options.pull_delay)
-            renderer.start()
-            threads.append(renderer)
-            puller = RecordsPuller(
-                stop_flag,
-                queue,
-                self.kinesis,
-                gsi_response['ShardIterator'],
-                int(options.pull_delay),
-                int(options.duration), )
-            puller.start()
-            threads.append(puller)
-        else:
-            print(
-                'Cannot retrieve shard iterator for stream [%s] / shard [%s] '
-                % (options.stream_name, options.shard_id))
+        shard_iterator = kinesis_helper.get_shard_iterator_from_latest(
+            options.stream_name, options.shard_id)
 
+        queue = Queue.Queue(self.QUEUE_SIZE)
+        renderer = RecordRenderer(stop_flag, queue, options.pull_delay)
+        renderer.start()
+        threads.append(renderer)
+
+        puller = RecordsPuller(
+            stop_flag,
+            queue,
+            self.kinesis_helper.client,
+            shard_iterator,
+            int(options.pull_delay),
+            int(options.duration), )
+        puller.start()
+
+        threads.append(puller)
         self._wait_on_exit(stop_flag)
         for thread in threads:
             thread.join()

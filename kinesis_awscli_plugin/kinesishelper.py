@@ -41,3 +41,16 @@ class KinesisHelper(AWSHelper):
     def has_more_shards(self, stream_description):
         return 'HasMoreShards' in stream_description and stream_description[
             'HasMoreShards'] == True
+
+    def get_shard_iterator_from_latest(self, stream_name, shard_id):
+        params = dict(
+            StreamName=stream_name,
+            ShardId=shard_id,
+            ShardIteratorType='LATEST')
+        gsi_response = self.client.get_shard_iterator(**params)
+        if gsi_response and gsi_response['ShardIterator']:
+            return gsi_response['ShardIterator']
+        else:
+            raise Exception(
+                'GetShardIterator did not return a valid iterator for stream %s, shard %s'
+                % (stream_name, shard_id))
