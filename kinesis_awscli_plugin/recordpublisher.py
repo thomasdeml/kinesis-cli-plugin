@@ -15,12 +15,12 @@ class RecordPublisher(BaseThread):
     MAX_RECORD_SIZE = 50 * 1024
     MAX_TIME_BETWEEN_PUTS = 5
 
-    def __init__(self, stop_flag, queue, kinesis_service, stream_name,
+    def __init__(self, stop_flag, queue, kinesis_helper, stream_name,
                  partition_key, batch_disabled, push_delay):
 
         super(RecordPublisher, self).__init__(stop_flag)
         self.queue = queue
-        self.kinesis_service = kinesis_service
+        self.kinesis_helper = kinesis_helper
         self.stream_name = stream_name
         self.partition_key = partition_key
         self.batch_disabled = batch_disabled
@@ -82,7 +82,7 @@ class RecordPublisher(BaseThread):
     def _put_kinesis_record(self, partition_key, data):
         params = dict(
             StreamName=self.stream_name, PartitionKey=partition_key, Data=data)
-        response = self.kinesis_service.put_record(**params)
+        response = self.kinesis_helper.client.put_record(**params)
         stdout.write('.')
         stdout.flush()
 

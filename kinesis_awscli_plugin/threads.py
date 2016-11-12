@@ -13,6 +13,7 @@
 from threading import Thread
 from sys import stderr
 
+logger = logging.getLogger(__name__)
 
 class ExitChecker(Thread):
     '''
@@ -32,6 +33,18 @@ class ExitChecker(Thread):
             else:
                 self.stop_flag.wait(1)
 
+    @staticmetod
+    def wait_on_exit(stop_flag):
+        exit_checker = ExitChecker(stop_flag)
+        exit_checker.start()
+        try:
+            while exit_checker.is_alive() and not stop_flag.is_set():
+                exit_checker.join(5)
+        except KeyboardInterrupt:
+            pass
+        logger.debug('Shutting down...')
+        stop_flag.set()
+        exit_checker.join()
 
 class BaseThread(Thread):
     '''

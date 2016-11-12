@@ -80,18 +80,6 @@ class PullCommand(BasicCommand):
         puller.start()
 
         threads.append(puller)
-        self._wait_on_exit(stop_flag)
+        ExitChecker.wait_on_exit(stop_flag)
         for thread in threads:
             thread.join()
-
-    def _wait_on_exit(self, stop_flag):
-        exit_checker = ExitChecker(stop_flag)
-        exit_checker.start()
-        try:
-            while exit_checker.is_alive() and not stop_flag.is_set():
-                exit_checker.join(5)
-        except KeyboardInterrupt:
-            pass
-        logger.debug('Setting stop_flag')
-        stop_flag.set()
-        exit_checker.join()

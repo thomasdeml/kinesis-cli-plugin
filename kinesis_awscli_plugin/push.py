@@ -79,7 +79,7 @@ class PushCommand(BasicCommand):
     QUEUE_SIZE = 10000
 
     def _run_main(self, args, parsed_globals):
-        self.kinesis = KinesisHelper(self._session, parsed_globals).client
+        self.kinesis = KinesisHelper(self._session, parsed_globals)
         register_ctrl_c_handler()
         self._call_push_stdin(args, parsed_globals)
         return 0
@@ -91,24 +91,12 @@ class PushCommand(BasicCommand):
         reader = StandardInputRecordsReader(stop_flag, queue, options.dry_run)
         reader.start()
         threads.append(reader)
-        publisher = RecordPublisher(stop_flag, queue, self.kinesis,
+        publisher = RecordPublisher(stop_flag, queue, self.kinesis_helper,
                                     options.stream_name, options.partition_key,
                                     options.disable_batch,
                                     int(options.push_delay))
         publisher.start()
         threads.append(publisher)
-        self._wait_on_exit(stop_flag)
+        ExitChecker.wait_on_exit(stop_flag)
         reader.join()
         publisher.join()
-
-    def _wait_on_exit(self, stop_flag):
-        exit_checker = ExitChecker(stop_flag)
-        exit_checker.start()
-        try:
-            while exit_checker.is_alive() and not stop_flag.is_set():
-                exit_checker.join(5)
-        except KeyboardInterrupt:
-            pass
-        logger.debug('Shutting down...')
-        stop_flag.set()
-        exit_checker.join()
