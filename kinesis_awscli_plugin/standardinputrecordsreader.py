@@ -19,7 +19,6 @@ class StandardInputRecordsReader(BaseThread):
 
         while True:
             line = stdin.readline()
-            #data = line.rstrip('\n')
             data = line
             if len(data) > self.MAX_LINE_LENGTH:
                 raise ValueError("Line is too long")

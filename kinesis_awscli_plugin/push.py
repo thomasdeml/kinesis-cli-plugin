@@ -19,8 +19,7 @@ from kinesis_awscli_plugin.retry import ExponentialBackoff
 from kinesis_awscli_plugin.standardinputrecordsreader import StandardInputRecordsReader
 from kinesis_awscli_plugin.recordpublisher import RecordPublisher
 from kinesis_awscli_plugin.kinesishelper import KinesisHelper
-from kinesis_awscli_plugin.utils \
-     import log_to_stdout,log_to_stderr, register_ctrl_c_handler, example_text
+from kinesis_awscli_plugin.utils import register_ctrl_c_handler, example_text
 import botocore
 import botocore.exceptions
 from six.moves import configparser

@@ -39,7 +39,7 @@ class RecordPublisher(BaseThread):
                     new_data = self._truncate_if_necessary(
                         new_data, self.MAX_RECORD_SIZE)
                     new_data = new_data.rstrip('\n')
-                    self._put_kinesis_record(
+                    self.put_kinesis_record_with_progress(
                         self.get_partition_key(new_data), new_data)
                     continue
                 logger.debug('New data: ' + new_data + '\n')
@@ -49,12 +49,12 @@ class RecordPublisher(BaseThread):
                     unput_data += new_data
                     if self._is_time_to_put(last_record_put_time,
                                             self.MAX_TIME_BETWEEN_PUTS):
-                        self._put_kinesis_record(
+                        self.put_kinesis_record_with_progress(
                             self.get_partition_key(unput_data), unput_data)
                         unput_data = ''
                         last_record_put_time = datetime.now()
                 else:
-                    self._put_kinesis_record(
+                    self.put_kinesis_record_with_progress(
                         self.get_partition_key(unput_data), unput_data)
                     unput_data = self._truncate_if_necessary(
                         new_data, self.MAX_RECORD_SIZE)
@@ -68,7 +68,7 @@ class RecordPublisher(BaseThread):
                     self.stop_flag.wait(float(self.push_delay / 1000.0))
         # still need to put remaining records
         if len(unput_data) > 0:
-            self._put_kinesis_record(
+            self.put_kinesis_record_with_progress(
                 self.get_partition_key(unput_data), unput_data)
 
     def get_partition_key(self, data):
@@ -79,10 +79,8 @@ class RecordPublisher(BaseThread):
         else:
             return self.partition_key
 
-    def _put_kinesis_record(self, partition_key, data):
-        params = dict(
-            StreamName=self.stream_name, PartitionKey=partition_key, Data=data)
-        response = self.kinesis_helper.client.put_record(**params)
+    def put_kinesis_record_with_progress(self, partition_key, data):
+        self.kinesis_helper.put_record(self.stream_name, partition_key, data)
         stdout.write('.')
         stdout.flush()
 

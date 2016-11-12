@@ -11,28 +11,10 @@
 # ANY KIND, either express or implied. See the License for the specific
 # language governing permissions and limitations under the License.
 
-from sys import stdin, stderr, stdout, exit
-from datetime import datetime
-import time
 import signal
 import os
-from dateutil.tz import *
+import sys
 from awscli.formatter import get_formatter
-
-
-def get_current_time_str():
-    fmt = '%Y-%m-%d %H:%M:%S'
-    return datetime.fromtimestamp(time.time()).strftime(fmt)
-
-
-def log_to_stdout(line):
-    stdout.write(get_current_time_str() + ' -- ' + line)
-    stdout.flush()
-
-
-def log_to_stderr(line):
-    stderr.write(get_current_time_str() + ' -- ' + line)
-    stderr.flush()
 
 
 def ctrl_c_handler(signum, frame):

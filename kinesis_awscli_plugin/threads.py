@@ -12,6 +12,7 @@
 # language governing permissions and limitations under the License.
 from threading import Thread
 from sys import stderr
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ class ExitChecker(Thread):
             else:
                 self.stop_flag.wait(1)
 
-    @staticmetod
+    @staticmethod
     def wait_on_exit(stop_flag):
         exit_checker = ExitChecker(stop_flag)
         exit_checker.start()
