@@ -98,13 +98,13 @@ This Plugin adds four Kinesis commands to the AWS CLI
 
    This command retrieves data from shard 0 of stream Test. GetRecords is called every 5000 ms (default). 
 
-   `aws kinesis pull --stream-name Test --shard-id shardId-000000000001`
+   `aws kinesis pull --stream-name Test --shard-id ShardId-000000000000`
 
    **Example 2:**
 
    This command retrieves data from shard 0 of stream Test. It calls GetRecords every 500ms. 
     
-   `aws kinesis pull --stream-name Test --shard-id shardId-00000000000 --pull-delay 500`
+   `aws kinesis pull --stream-name Test --shard-id ShardId-00000000000 --pull-delay 500`
 
 
    
