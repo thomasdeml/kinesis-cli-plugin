@@ -55,8 +55,8 @@ class KinesisHelper(AWSHelper):
                 'GetShardIterator did not return a valid iterator for stream %s, shard %s'
                 % (stream_name, shard_id))
     
-    def put_record(self, partition_key, data):
+    def put_record(self, stream_name, partition_key, data):
         params = dict(
-            StreamName=self.stream_name, PartitionKey=partition_key, Data=data)
+            StreamName=stream_name, PartitionKey=partition_key, Data=data)
         return self.client.put_record(**params)
  

@@ -1,18 +1,7 @@
-from datetime import datetime
-from dateutil.tz import tzlocal
-import hashlib
 import logging
-import json
-import os
-from operator import itemgetter
-import shelve
-from sys import stdin, stderr, stdout, exc_info
-from threading import Event, Lock, Thread
-import time
-import six
+from sys import exc_info
+from threading import Event
 from six.moves import queue as Queue
-from botocore.vendored import requests
-from awscli.errorhandler import ServerError
 from awscli.customizations.commands import BasicCommand
 from kinesis_awscli_plugin.lib.threads import BaseThread, ExitChecker
 from kinesis_awscli_plugin.lib.retry import ExponentialBackoff
@@ -20,11 +9,6 @@ from kinesis_awscli_plugin.lib.standardinputrecordsreader import StandardInputRe
 from kinesis_awscli_plugin.lib.recordpublisher import RecordPublisher
 from kinesis_awscli_plugin.lib.kinesishelper import KinesisHelper
 from kinesis_awscli_plugin.lib.utils import register_ctrl_c_handler, example_text
-import botocore
-import botocore.exceptions
-from six.moves import configparser
-from sys import stdout
-from awscli.errorhandler import ServerError
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +62,7 @@ class PushCommand(BasicCommand):
     QUEUE_SIZE = 10000
 
     def _run_main(self, args, parsed_globals):
-        self.kinesis = KinesisHelper(self._session, parsed_globals)
+        self.kinesis_helper = KinesisHelper(self._session, parsed_globals)
         register_ctrl_c_handler()
         self._call_push_stdin(args, parsed_globals)
         return 0

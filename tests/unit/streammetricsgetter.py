@@ -1,4 +1,3 @@
-import tempfile
 import datetime
 from mock import Mock 
 
