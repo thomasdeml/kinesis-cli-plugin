@@ -145,8 +145,7 @@ class GetShardMetricsCommand(BasicCommand):
     def create_shard_metrics_output(self, sorted_shard_array, args):
         output = {}
 
-        output[
-            'Description'] = 'Sorted average of "{0} ({1}) per minute" between {2} and {3}'.format(
+        output['Description'] = "Sorted datapoint average of '{0}' ({1}) per minute between {2} and {3}".format(
                 args.metric_name,
                 args.statistic,
                 TimeUtils.iso8601(args.start_time),

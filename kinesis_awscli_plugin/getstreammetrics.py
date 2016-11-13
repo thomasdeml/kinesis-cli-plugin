@@ -149,8 +149,7 @@ class GetStreamMetricsCommand(BasicCommand):
     def create_stream_metrics_output(self, metrics_array, args):
         output = {}
 
-        output[
-            'Description'] = 'Stream metrics for stream "{1}" between {2} and {3}'.format(
+        output['Description'] = "Stream metrics for stream '{1}' between {2} and {3}".format(
                 args.statistic,
                 args.stream_name,
                 TimeUtils.iso8601(args.start_time),
