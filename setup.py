@@ -9,4 +9,8 @@ setup(
     author_email = 'thomas.deml@gmail.com',
     description = 'An AWS Command-line Interface plugin for AWS Kinesis',
     keywords = 'AWS Kinesis CLI',
+    install_requires = [
+      'awscli',
+      'dateparser',
+    ],
 )
