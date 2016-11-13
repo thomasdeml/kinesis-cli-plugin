@@ -1,4 +1,4 @@
-from kinesis_awscli_plugin.kinesismetrics import KinesisMetrics
+from kinesis_awscli_plugin.lib.kinesismetrics import KinesisMetrics
 
 
 class StreamMetricsGetter(object):

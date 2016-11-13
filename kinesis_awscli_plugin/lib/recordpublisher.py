@@ -4,8 +4,8 @@ from sys import stdin, stderr, stdout, exc_info
 from datetime import datetime
 from six.moves import queue as Queue
 from awscli.errorhandler import ServerError
-from kinesis_awscli_plugin.retry import ExponentialBackoff
-from kinesis_awscli_plugin.threads import BaseThread
+from kinesis_awscli_plugin.lib.retry import ExponentialBackoff
+from kinesis_awscli_plugin.lib.threads import BaseThread
 
 logger = logging.getLogger(__name__)
 

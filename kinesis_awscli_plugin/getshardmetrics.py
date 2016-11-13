@@ -16,11 +16,11 @@ import sys
 import datetime
 
 from awscli.customizations.commands import BasicCommand
-from kinesis_awscli_plugin.shardmetricsgetter import ShardMetricsGetter
-from kinesis_awscli_plugin.timeutils import TimeUtils
-from kinesis_awscli_plugin.kinesishelper import KinesisHelper
-from kinesis_awscli_plugin.cloudwatchhelper import CloudWatchHelper
-from kinesis_awscli_plugin.utils import example_text, display_response
+from kinesis_awscli_plugin.lib.shardmetricsgetter import ShardMetricsGetter
+from kinesis_awscli_plugin.lib.timeutils import TimeUtils
+from kinesis_awscli_plugin.lib.kinesishelper import KinesisHelper
+from kinesis_awscli_plugin.lib.cloudwatchhelper import CloudWatchHelper
+from kinesis_awscli_plugin.lib.utils import example_text, display_response
 
 
 class GetShardMetricsCommand(BasicCommand):

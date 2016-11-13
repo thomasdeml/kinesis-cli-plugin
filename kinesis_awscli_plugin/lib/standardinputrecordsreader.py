@@ -1,7 +1,7 @@
 import logging
 import botocore
 from sys import stdin, stderr, stdout
-from kinesis_awscli_plugin.threads import BaseThread
+from kinesis_awscli_plugin.lib.threads import BaseThread
 
 logger = logging.getLogger(__name__)
 

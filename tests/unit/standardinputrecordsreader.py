@@ -1,4 +1,4 @@
-from kinesis_awscli_plugin.standardinputrecordsreader import StandardInputRecordsReader
+from kinesis_awscli_plugin.lib.standardinputrecordsreader import StandardInputRecordsReader
 from mock import MagicMock, patch
 from nose.tools import assert_raises
 from six.moves import queue as Queue

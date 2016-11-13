@@ -1,4 +1,4 @@
-from kinesis_awscli_plugin.awshelper import AWSHelper
+from kinesis_awscli_plugin.lib.awshelper import AWSHelper
 
 
 class CloudWatchHelper(AWSHelper):

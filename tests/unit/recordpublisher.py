@@ -1,4 +1,4 @@
-from kinesis_awscli_plugin.recordpublisher import RecordPublisher 
+from kinesis_awscli_plugin.lib.recordpublisher import RecordPublisher 
 from mock import MagicMock
 from six.moves import queue as Queue
 from threading import Event, Lock, Thread

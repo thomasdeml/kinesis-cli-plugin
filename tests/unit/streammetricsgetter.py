@@ -2,8 +2,8 @@ import tempfile
 import datetime
 from mock import Mock 
 
-from kinesis_awscli_plugin.streammetricsgetter import StreamMetricsGetter
-from kinesis_awscli_plugin.timeutils import TimeUtils
+from kinesis_awscli_plugin.lib.streammetricsgetter import StreamMetricsGetter
+from kinesis_awscli_plugin.lib.timeutils import TimeUtils
 from mock import MagicMock
 from argparse import Namespace
 

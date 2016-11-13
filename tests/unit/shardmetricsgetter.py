@@ -1,6 +1,6 @@
 import datetime
-from kinesis_awscli_plugin.shardmetricsgetter import ShardMetricsGetter
-from kinesis_awscli_plugin.timeutils import TimeUtils
+from kinesis_awscli_plugin.lib.shardmetricsgetter import ShardMetricsGetter
+from kinesis_awscli_plugin.lib.timeutils import TimeUtils
 from mock import MagicMock
 
 class TestShardMetricsGetter:

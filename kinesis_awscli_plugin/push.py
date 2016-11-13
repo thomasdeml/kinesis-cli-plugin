@@ -14,12 +14,12 @@ from six.moves import queue as Queue
 from botocore.vendored import requests
 from awscli.errorhandler import ServerError
 from awscli.customizations.commands import BasicCommand
-from kinesis_awscli_plugin.threads import BaseThread, ExitChecker
-from kinesis_awscli_plugin.retry import ExponentialBackoff
-from kinesis_awscli_plugin.standardinputrecordsreader import StandardInputRecordsReader
-from kinesis_awscli_plugin.recordpublisher import RecordPublisher
-from kinesis_awscli_plugin.kinesishelper import KinesisHelper
-from kinesis_awscli_plugin.utils import register_ctrl_c_handler, example_text
+from kinesis_awscli_plugin.lib.threads import BaseThread, ExitChecker
+from kinesis_awscli_plugin.lib.retry import ExponentialBackoff
+from kinesis_awscli_plugin.lib.standardinputrecordsreader import StandardInputRecordsReader
+from kinesis_awscli_plugin.lib.recordpublisher import RecordPublisher
+from kinesis_awscli_plugin.lib.kinesishelper import KinesisHelper
+from kinesis_awscli_plugin.lib.utils import register_ctrl_c_handler, example_text
 import botocore
 import botocore.exceptions
 from six.moves import configparser
