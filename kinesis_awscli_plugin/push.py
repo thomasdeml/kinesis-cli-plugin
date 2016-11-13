@@ -2,7 +2,9 @@ import logging
 from sys import exc_info
 from threading import Event
 from six.moves import queue as Queue
+
 from awscli.customizations.commands import BasicCommand
+
 from kinesis_awscli_plugin.lib.threads import BaseThread, ExitChecker
 from kinesis_awscli_plugin.lib.retry import ExponentialBackoff
 from kinesis_awscli_plugin.lib.standardinputrecordsreader import StandardInputRecordsReader

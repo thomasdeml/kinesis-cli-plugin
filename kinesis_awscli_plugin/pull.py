@@ -1,7 +1,10 @@
-from threading import Thread, Event
+
 import logging
+from threading import Thread, Event
 from six.moves import queue as Queue
+
 from awscli.customizations.commands import BasicCommand
+
 from kinesis_awscli_plugin.lib.threads import ExitChecker
 from kinesis_awscli_plugin.lib.utils import example_text
 from kinesis_awscli_plugin.lib.recordrenderer import RecordRenderer
