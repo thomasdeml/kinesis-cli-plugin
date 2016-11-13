@@ -77,7 +77,7 @@ This Plugin adds four Kinesis commands to the AWS CLI
 
    **Example 1:** 
    
-   Puts every line of logfile into a record and calls PutRecord. The partition key is the MD5 hash of the payload. 
+   Puts every new line of currently populated logfile into a record and calls PutRecord. The partition key is the MD5 hash of the payload. 
 
    `tail -f logfile | aws kinesis push --stream-name Test --disable-batch`
   
@@ -85,7 +85,7 @@ This Plugin adds four Kinesis commands to the AWS CLI
 
    Puts the content of every log file in the /var/log directory into Kinesis. Lines are batched into a single record until the record reaches 50kB. Partition key is the current host name.  
 
-   `cat /var/log/* | aws kinesis push --stream-name Test --partition-key $(hostname)`
+   `cat /var/log/*.log | aws kinesis push --stream-name Test --partition-key $(hostname)`
 
 
 
