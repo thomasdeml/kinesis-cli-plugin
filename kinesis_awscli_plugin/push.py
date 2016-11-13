@@ -10,7 +10,7 @@ from kinesis_awscli_plugin.lib.retry import ExponentialBackoff
 from kinesis_awscli_plugin.lib.standardinputrecordsreader import StandardInputRecordsReader
 from kinesis_awscli_plugin.lib.recordpublisher import RecordPublisher
 from kinesis_awscli_plugin.lib.kinesishelper import KinesisHelper
-from kinesis_awscli_plugin.lib.utils import register_ctrl_c_handler, example_text
+from kinesis_awscli_plugin.lib.utils import Utils
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class PushCommand(BasicCommand):
     NAME = 'push'
 
-    EXAMPLES = example_text(__file__, NAME + '.rst')
+    EXAMPLES = Utils.example_text(__file__, NAME + '.rst')
 
     DESCRIPTION = ('This command pushes records to a Kinesis stream.  '
                    'Standard input is read line by line and sent as record. '
@@ -65,7 +65,7 @@ class PushCommand(BasicCommand):
 
     def _run_main(self, args, parsed_globals):
         self.kinesis_helper = KinesisHelper(self._session, parsed_globals)
-        register_ctrl_c_handler()
+        Utils.register_ctrl_c_handler()
         self._call_push_stdin(args, parsed_globals)
         return 0
 

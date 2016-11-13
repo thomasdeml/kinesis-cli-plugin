@@ -1,4 +1,3 @@
-
 import logging
 from threading import Thread, Event
 from six.moves import queue as Queue
@@ -6,10 +5,10 @@ from six.moves import queue as Queue
 from awscli.customizations.commands import BasicCommand
 
 from kinesis_awscli_plugin.lib.threads import ExitChecker
-from kinesis_awscli_plugin.lib.utils import example_text
 from kinesis_awscli_plugin.lib.recordrenderer import RecordRenderer
 from kinesis_awscli_plugin.lib.recordspuller import RecordsPuller
 from kinesis_awscli_plugin.lib.kinesishelper import KinesisHelper
+from kinesis_awscli_plugin.lib.utils import Utils
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ class PullCommand(BasicCommand):
 
     NAME = 'pull'
 
-    EXAMPLES = example_text(__file__, NAME + '.rst')
+    EXAMPLES = Utils.example_text(__file__, NAME + '.rst')
 
     DESCRIPTION = ('This command pulls records from a Kinesis stream. ')
 

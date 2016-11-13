@@ -8,14 +8,14 @@ from awscli.customizations.commands import BasicCommand
 from kinesis_awscli_plugin.lib.streammetricsgetter import StreamMetricsGetter
 from kinesis_awscli_plugin.lib.timeutils import TimeUtils
 from kinesis_awscli_plugin.lib.cloudwatchhelper import CloudWatchHelper
-from kinesis_awscli_plugin.lib.utils import example_text, display_response
+from kinesis_awscli_plugin.lib.utils import Utils
 
 
 class GetStreamMetricsCommand(BasicCommand):
 
     NAME = 'get-stream-metrics'
 
-    EXAMPLES = example_text(__file__, NAME + '.rst')
+    EXAMPLES = Utils.example_text(__file__, NAME + '.rst')
 
     DESCRIPTION = """The command gets Stream Metrics for the specified Kinesis Stream."""
 
@@ -96,7 +96,7 @@ class GetStreamMetricsCommand(BasicCommand):
             statistic=args.statistic, )
         stream_metrics = stream_metrics_getter.get(args.metric_names)
         output = self.create_stream_metrics_output(stream_metrics, args)
-        display_response(self._session, 'get-stream-metrics', output,
+        Utils.display_response(self._session, 'get-stream-metrics', output,
                          parsed_globals)
         return 0
 

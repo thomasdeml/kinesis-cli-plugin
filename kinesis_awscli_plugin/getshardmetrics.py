@@ -9,14 +9,14 @@ from kinesis_awscli_plugin.lib.shardmetricsgetter import ShardMetricsGetter
 from kinesis_awscli_plugin.lib.timeutils import TimeUtils
 from kinesis_awscli_plugin.lib.kinesishelper import KinesisHelper
 from kinesis_awscli_plugin.lib.cloudwatchhelper import CloudWatchHelper
-from kinesis_awscli_plugin.lib.utils import example_text, display_response
+from kinesis_awscli_plugin.lib.utils import Utils
 
 
 class GetShardMetricsCommand(BasicCommand):
 
     NAME = 'get-shard-metrics'
 
-    EXAMPLES = example_text(__file__, NAME + '.rst')
+    EXAMPLES = Utils.example_text(__file__, NAME + '.rst')
 
     DESCRIPTION = """Get Shard Metrics for a Kinesis Stream. The metrics 
       are sorted using the average over the specified duration as the 
@@ -96,7 +96,7 @@ class GetShardMetricsCommand(BasicCommand):
         shard_metrics = shard_metrics_getter.get()
 
         output = self.create_shard_metrics_output(shard_metrics, args)
-        display_response(self._session, 'get-shard-metrics', output,
+        Utils.display_response(self._session, 'get-shard-metrics', output,
                          parsed_globals)
         return 0
 

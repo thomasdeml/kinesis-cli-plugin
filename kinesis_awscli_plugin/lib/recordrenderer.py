@@ -2,6 +2,7 @@ import logging
 import base64
 from six.moves import queue as Queue
 from sys import stdout
+
 from kinesis_awscli_plugin.lib.threads import BaseThread, ExitChecker
 
 logger = logging.getLogger(__name__)
