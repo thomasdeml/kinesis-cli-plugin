@@ -64,7 +64,7 @@ class PullCommand(BasicCommand):
 
         threads = []
         stop_flag = Event()
-        shard_iterator = kinesis_helper.get_shard_iterator_from_latest(
+        shard_iterator = self.kinesis_helper.get_shard_iterator_from_latest(
             options.stream_name, options.shard_id)
 
         queue = Queue.Queue(self.QUEUE_SIZE)
