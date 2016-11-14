@@ -5,3 +5,4 @@ create-dist
 TODO.TXT
 kinesis_awscli_plugin.egg-info/**
 build
+.coverage
