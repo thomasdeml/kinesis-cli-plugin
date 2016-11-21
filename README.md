@@ -11,7 +11,7 @@ This Plugin adds four Kinesis commands to the AWS CLI
 
    `sudo pip install https://s3.amazonaws.com/thomasdeml/kinesis_awscli_plugin-0.1.zip --ignore-installed six`
 
-### Plugin Registration
+### AWS CLI Plugin Registration
    Execute the following command to register the plugin in your ~/.aws/config file
 
    `aws configure set plugins.kinesis kinesis_awscli_plugin`
