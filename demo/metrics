@@ -1,0 +1,39 @@
+#!/bin/bash
+clear
+echo ''
+echo "NEW COMMAND HELP with aws kinesis help: push pull get-stream-metrics get-shard-metrics'"
+sleep 5 > /dev/null
+aws kinesis help
+
+echo ''
+echo "HELP FOR INDIVIDUAL COMMANDS, for example: 'aws kinesis get-stream-metrics help'"
+sleep 3 > /dev/null
+aws kinesis get-stream-metrics help
+
+echo ''
+echo "STREAM METRICS: Executing 'aws kinesis get-stream-metrics --stream-name MetricsTest'"
+sleep 5 > /dev/null
+aws kinesis get-stream-metrics --stream-name MetricsTest --stream-name MetricsTest | less
+
+echo ''
+echo "SELECTED STREAM METRICS USING TABLE FORMAT: Executing aws kinesis get-stream-metrics --stream-name MetricsTest --metric-names IncomingRecords,IncomingBytes --output table"
+sleep 5 > /dev/null
+aws kinesis get-stream-metrics --stream-name MetricsTest --metric-names IncomingRecords,IncomingBytes --output table | less
+sleep 5 > /dev/null
+
+echo ''
+echo "SHARD METRICS ORDERED BY AVERAGE OVER THE DEFAULT TIMEFRAME \(10 MIN\): 'aws kinesis --stream-name MetricsTest --metric-name IncomingBytes --statistic Sum --output table'"
+sleep 5 > /dev/null
+aws kinesis get-shard-metrics --stream-name MetricsTest --metric-name IncomingBytes --statistic Sum --output table | less
+sleep 5 > /dev/null
+
+echo ''
+echo "SHARD METRICS - ONLY AVERAGES OVER THE DEFAULT TIMEFRAME: aws kinesis --stream-name MetricsTest --query ShardMetrics[*].{ShardId:ShardId,DatapointAverage:DatapointAverage} --output table "
+sleep 5 > /dev/null
+aws kinesis get-shard-metrics --stream-name MetricsTest --metric-name IncomingBytes --statistic Sum --query "ShardMetrics[*].{ShardId:ShardId,DatapointAverage:DatapointAverage}" --output table | less
+sleep 5 > /dev/null
+
+echo ''
+echo SHARD METRICS WITH CUSTOM TIME: aws kinesis --stream-name MetricsTest --start-time '20 minutes ago' --end-time '1 minutes ago' --metric-name IncomingBytes --query "ShardMetrics[*].{ShardId:ShardId,DatapointAverage:DatapointAverage}" --output table
+sleep 5 > /dev/null
+aws  kinesis  get-shard-metrics --stream-name MetricsTest --metric-name IncomingBytes --statistic  Sum   --query   "ShardMetrics[*].{ShardId:ShardId,DatapointAverage:DatapointAverage}" --output table | less

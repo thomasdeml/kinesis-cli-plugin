@@ -1,0 +1,7 @@
+!#/bin/bash
+sudo pip uninstall kinesis_awscli_plugin -y
+sudo python setup.py install
+aws kinesis get-stream-metrics --stream-name MetricsTest
+aws kinesis get-shard-metrics --stream-name MetricsTest
+echo 'test the west' | aws kinesis push --stream-name MetricsTest
+aws kinesis pull --stream-name MetricsTest --shard-id ShardId-000000000000 --duration 1
