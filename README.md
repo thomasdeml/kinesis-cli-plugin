@@ -50,7 +50,7 @@ This Plugin adds four Kinesis commands to the AWS CLI
 
    **Example 2:** 
    
-   Shard metrics query using some another metric and statistic. Output is sorted by average of datapoints for the shards in descending order. 
+   Shard metrics query using a different metric and statistic. Output is sorted by average of datapoints for the shards in descending order. 
 
    `aws kinesis get-shard-metrics --stream-name Test --metric-name WriteProvisionedThroughputExceeded --statistic Sum`
 
