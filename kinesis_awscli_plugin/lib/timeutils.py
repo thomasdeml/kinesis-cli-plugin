@@ -11,7 +11,7 @@ class TimeUtils:
         try:
             import dateparser
             return True
-        except ImportError, NameError:
+        except(ImportError, NameError):
             return False
 
     @staticmethod
