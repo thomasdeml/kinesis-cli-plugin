@@ -24,7 +24,7 @@ class RecordRenderer(BaseThread):
                 for record in record_batch.records:
                     revised_record = record.copy()
                     stdout.write(
-                        base64.b64decode(revised_record['Data']) + '\n')
+                        base64.b64decode(revised_record['Data']).decode('utf-8') + '\n')
                     stdout.flush()
             except Queue.Empty:
                 if self.stop_flag.is_set():
