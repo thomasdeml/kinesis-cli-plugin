@@ -1,6 +1,7 @@
 import logging
 from threading import Thread
 from sys import stderr
+import traceback
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,7 @@ class BaseThread(Thread):
         # BUGBUG: we swallow all exceptions!!!
         # for example if a line is longer than MAX_SIZE in StandardInputRecordsReader!
         except Exception as e:
+            print(traceback.format_exc())
             msg = '%s leaving due to %s' % (self, e)
             stderr.write('%s\n' % msg)
             # If a thread exits accidentally, other threads should exit so

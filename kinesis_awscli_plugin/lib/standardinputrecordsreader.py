@@ -21,7 +21,7 @@ class StandardInputRecordsReader(BaseThread):
             line = self.read_stdin_line()
             if line:
                 if len(line) > self.MAX_LINE_LENGTH:
-                   raise ValueError("Line is too long")
+                   logger.info("The following line is too long (it's not pushed): " + line)
                 record = {'data': line}
                 if self.dry_run:
                     self.write_to_stdout_and_flush(record)

@@ -103,7 +103,7 @@ class RecordPublisher(BaseThread):
 
     def _truncate_if_necessary(self, data, max_size):
         if len(data) > max_size:
-            logger.debug("needed to truncate record")
-            return data[1..max_size]
+            logger.debug("needed to truncate record to " + str(max_size))
+            return data[1:max_size]
         else:
             return data
